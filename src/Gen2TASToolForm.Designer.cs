@@ -35,15 +35,15 @@
 			// 
 			// checkedListBox1
 			// 
-			this.checkedListBox1.Location = new System.Drawing.Point(12, 76);
+			this.checkedListBox1.Location = new System.Drawing.Point(38, 76);
 			this.checkedListBox1.Name = "checkedListBox1";
-			this.checkedListBox1.Size = new System.Drawing.Size(209, 514);
+			this.checkedListBox1.Size = new System.Drawing.Size(209, 349);
 			this.checkedListBox1.TabIndex = 0;
 			// 
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(81, 60);
+			this.label1.Location = new System.Drawing.Point(101, 60);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(63, 13);
 			this.label1.TabIndex = 1;
@@ -52,7 +52,7 @@
 			// checkBox1
 			// 
 			this.checkBox1.AutoSize = true;
-			this.checkBox1.Location = new System.Drawing.Point(38, 25);
+			this.checkBox1.Location = new System.Drawing.Point(68, 23);
 			this.checkBox1.Name = "checkBox1";
 			this.checkBox1.Size = new System.Drawing.Size(146, 17);
 			this.checkBox1.TabIndex = 2;
@@ -63,7 +63,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(233, 604);
+			this.ClientSize = new System.Drawing.Size(296, 448);
 			this.Controls.Add(this.checkBox1);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.checkedListBox1);

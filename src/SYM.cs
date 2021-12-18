@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-using BizHawk.Client.Common;
-
 namespace Gen2TASTool
 {
 	public class SYM
@@ -16,7 +14,14 @@ namespace Gen2TASTool
 			Crystal
 		}
 
-		private static readonly int[] bankSizes = new int[16]
+		private readonly Gen2Game Game;
+
+		public bool IsGold => Game is Gen2Game.Gold;
+		public bool IsSilver => Game is Gen2Game.Silver;
+		public bool IsGS => Game is Gen2Game.Gold or Gen2Game.Silver;
+		public bool IsCrys => Game is Gen2Game.Crystal;
+
+		private static readonly uint[] bankSizes = new uint[16]
 		{
 			/*ROM*/ 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000,
 			/*VRAM*/ 0x2000, 0x2000,
@@ -25,7 +30,7 @@ namespace Gen2TASTool
 			/*Echo-OAM-HRAM*/ 0, 0,
 		};
 
-		private static readonly int[] domOffsets = new int[16]
+		private static readonly uint[] domOffsets = new uint[16]
 		{
 			/*ROM*/ 0, 0, 0, 0, 0x4000, 0x4000, 0x4000, 0x4000,
 			/*VRAM*/ 0x8000, 0x8000,
@@ -45,15 +50,15 @@ namespace Gen2TASTool
 
 		private class SYMEntry
 		{
-			public int Bank;
-			public int SystemBusAddress;
+			public uint Bank;
+			public uint SystemBusAddress;
 			public string Domain;
-			public int DomainAddress;
+			public uint DomainAddress;
 
 			public SYMEntry(string line)
 			{
-				Bank = int.Parse(line.Substring(0, 2), NumberStyles.HexNumber);
-				SystemBusAddress = int.Parse(line.Substring(3, 4), NumberStyles.HexNumber);
+				Bank = uint.Parse(line.Substring(0, 2), NumberStyles.HexNumber);
+				SystemBusAddress = uint.Parse(line.Substring(3, 4), NumberStyles.HexNumber);
 				var index = SystemBusAddress >> 12;
 				Domain = domains[index];
 				DomainAddress = SystemBusAddress + Bank * bankSizes[index] - domOffsets[index];
@@ -61,11 +66,12 @@ namespace Gen2TASTool
 		}
 
 		private readonly Dictionary<string, SYMEntry> SymEntries = new();
-		private IDialogController DialogController { get; }
+		private Gen2TASToolForm.MessageCallback MessageCb { get; }
 
-		public SYM(Gen2Game game, IDialogController dialogController)
+		public SYM(Gen2Game game, Gen2TASToolForm.MessageCallback messageCb)
 		{
-			DialogController = dialogController;
+			MessageCb = messageCb;
+			Game = game;
 
 			string file = game switch
 			{
@@ -88,7 +94,7 @@ namespace Gen2TASTool
 			}
 		}
 
-		public int GetSYMBank(string symbol)
+		public uint GetSYMBank(string symbol)
 		{
 			try
 			{
@@ -96,12 +102,12 @@ namespace Gen2TASTool
 			}
 			catch (Exception e)
 			{
-				DialogController.ShowMessageBox($"Caught {e.GetType().FullName} while getting bank for symbol {symbol}");
-				return -1;
+				MessageCb($"Caught {e.GetType().FullName} while getting bank for symbol {symbol}");
+				return 0;
 			}
 		}
 
-		public int GetSYMSysBusAddr(string symbol)
+		public uint GetSYMSysBusAddr(string symbol)
 		{
 			try
 			{
@@ -109,8 +115,8 @@ namespace Gen2TASTool
 			}
 			catch (Exception e)
 			{
-				DialogController.ShowMessageBox($"Caught {e.GetType().FullName} while getting system bus address for symbol {symbol}");
-				return -1;
+				MessageCb($"Caught {e.GetType().FullName} while getting system bus address for symbol {symbol}");
+				return 0;
 			}
 		}
 
@@ -122,12 +128,12 @@ namespace Gen2TASTool
 			}
 			catch (Exception e)
 			{
-				DialogController.ShowMessageBox($"Caught {e.GetType().FullName} while getting domain for symbol {symbol}");
+				MessageCb($"Caught {e.GetType().FullName} while getting domain for symbol {symbol}");
 				return "";
 			}
 		}
 
-		public int GetSYMDomAddr(string symbol)
+		public uint GetSYMDomAddr(string symbol)
 		{
 			try
 			{
@@ -135,8 +141,8 @@ namespace Gen2TASTool
 			}
 			catch (Exception e)
 			{
-				DialogController.ShowMessageBox($"Caught {e.GetType().FullName} while getting domain address for symbol {symbol}");
-				return -1;
+				MessageCb($"Caught {e.GetType().FullName} while getting domain address for symbol {symbol}");
+				return 0;
 			}
 		}
 	}
