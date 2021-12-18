@@ -32,6 +32,7 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.checkBox1 = new System.Windows.Forms.CheckBox();
 			this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+			this.checkBox2 = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
 			// 
 			// checkedListBox1
@@ -53,7 +54,7 @@
 			// checkBox1
 			// 
 			this.checkBox1.AutoSize = true;
-			this.checkBox1.Location = new System.Drawing.Point(68, 23);
+			this.checkBox1.Location = new System.Drawing.Point(75, 12);
 			this.checkBox1.Name = "checkBox1";
 			this.checkBox1.Size = new System.Drawing.Size(146, 17);
 			this.checkBox1.TabIndex = 2;
@@ -71,11 +72,22 @@
 			this.linkLabel1.Text = "source";
 			this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
 			// 
+			// checkBox2
+			// 
+			this.checkBox2.AutoSize = true;
+			this.checkBox2.Location = new System.Drawing.Point(75, 35);
+			this.checkBox2.Name = "checkBox2";
+			this.checkBox2.Size = new System.Drawing.Size(160, 17);
+			this.checkBox2.TabIndex = 4;
+			this.checkBox2.Text = "Disable Callbacks (speedup)";
+			this.checkBox2.UseVisualStyleBackColor = true;
+			// 
 			// Gen2TASToolForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(296, 448);
+			this.Controls.Add(this.checkBox2);
 			this.Controls.Add(this.linkLabel1);
 			this.Controls.Add(this.checkBox1);
 			this.Controls.Add(this.label1);
@@ -92,5 +104,6 @@
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.CheckBox checkBox1;
 		private System.Windows.Forms.LinkLabel linkLabel1;
+		private System.Windows.Forms.CheckBox checkBox2;
 	}
 }

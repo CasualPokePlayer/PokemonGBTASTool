@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
@@ -16,20 +17,19 @@ namespace Gen2TASTool
 	public partial class Gen2TASToolForm : ToolFormBase, IExternalToolForm
 	{
 		public ApiContainer? ApiContainer { get; set; }
+		private ApiContainer APIs => ApiContainer ?? throw new NullReferenceException();
+
+		private SYM? SYM { get; set; }
+		private SYM GBSym => SYM ?? throw new NullReferenceException();
+
+		private Callbacks? Callbacks { get; set; }
+		private Callbacks CBs => Callbacks ?? throw new NullReferenceException();
+
+		private readonly PokemonData PkmnData;
 
 		public delegate void MessageCallback(string message);
 
-		private ApiContainer APIs => ApiContainer ?? throw new NullReferenceException();
-
 		protected override string WindowTitleStatic => "Gen2TASTool";
-
-		private SYM? _GBSym;
-		private SYM GBSym => _GBSym ?? throw new NullReferenceException();
-
-		private Callbacks? _CBs;
-		private Callbacks CBs => _CBs ?? throw new NullReferenceException();
-
-		private readonly PokemonData PkmnData;
 
 		public Gen2TASToolForm()
 		{
@@ -44,6 +44,11 @@ namespace Gen2TASTool
 		/// <remarks>This is called once when the form is opened, and every time a new movie session starts.</remarks>
 		public override void Restart()
 		{
+			if (string.IsNullOrEmpty(APIs.GameInfo.GetBoardType()))
+			{
+				ShowMessage("Only Gambatte is supported with this tool");
+				Close();
+			}
 			SYM.Gen2Game gen2Game = APIs.GameInfo.GetGameInfo()?.Hash switch
 			{
 				"D8B8A3600A465308C9953DFA04F0081C05BDCB94" => SYM.Gen2Game.Gold,
@@ -51,15 +56,12 @@ namespace Gen2TASTool
 				"F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133" => SYM.Gen2Game.Crystal,
 				_ => throw new Exception()
 			};
-			_GBSym = new SYM(gen2Game, ShowMessage);
-			_CBs = new Callbacks(APIs, GBSym, () => checkBox1.Checked);
+			SYM = new SYM(gen2Game, ShowMessage);
+			Callbacks = new Callbacks(APIs, SYM, () => checkBox1.Checked);
 			APIs.EmuClient.SetGameExtraPadding(0, 0, 105, 0);
 		}
 
-		private byte CpuReadU8(string symbol)
-		{
-			return (byte)APIs.Memory.ReadU8(GBSym.GetSYMDomAddr(symbol), GBSym.GetSYMDomain(symbol));
-		}
+		private byte CpuReadU8(string symbol) => (byte)APIs.Memory.ReadU8(GBSym.GetSYMDomAddr(symbol), GBSym.GetSYMDomain(symbol));
 
 		private ushort CpuReadBigU16(string symbol)
 		{
@@ -72,7 +74,7 @@ namespace Gen2TASTool
 
 		public override void UpdateValues(ToolFormUpdateType type)
 		{
-			CBs.UpdateCallbacks(checkedListBox1);
+			CBs.UpdateCallbacks(checkedListBox1, checkBox2.Checked);
 			APIs.Gui.Text(5, 5, $"{GetEnemyMonName()}'s Max HP: {CpuReadBigU16("wEnemyMonMaxHP")}", Color.White, "topright");
 			APIs.Gui.Text(5, 25, $"{GetEnemyMonName()}'s Cur HP: {CpuReadBigU16("wEnemyMonHP")}", Color.White, "topright");
 			APIs.Gui.Text(5, 55, $"{GetEnemyMonName()}'s Move: {GetEnemyMonMove()}", Color.White, "topright");

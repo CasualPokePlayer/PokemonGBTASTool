@@ -48,6 +48,7 @@ namespace Gen2TASTool
 		private readonly Func<bool> BreakpointsActive;
 		private readonly Dictionary<string, bool> BreakpointActive = new();
 		private readonly List<MemoryCallbackDelegate> CallbackList = new();
+		private bool CallbacksSet;
 
 		public Callbacks(ApiContainer apis, SYM sym, Func<bool> getBreakpointsActive)
 		{
@@ -58,10 +59,10 @@ namespace Gen2TASTool
 			APIs = apis;
 			GBSym = sym;
 			BreakpointsActive = getBreakpointsActive;
-			InitCallbacks();
+			SetCallbacks();
 		}
 
-		private void InitCallbacks()
+		private void SetCallbacks()
 		{
 			// rng callbacks mostly just set two things, the roll and the chance.
 			// for simplicity all RNG values have both of these and if they do not use one it is set to 0
@@ -99,13 +100,33 @@ namespace Gen2TASTool
 			// check a ow
 			CallbackList.Add(MakeGenericCallback("Check A Press Overworld"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("CheckAPressOW"), "ROM");
+
+			CallbacksSet = true;
 		}
 
-		public void UpdateCallbacks(CheckedListBox checklist)
+		private void RemoveCallbacks()
+		{
+			foreach (var cb in CallbackList)
+			{
+				APIs.MemoryEvents.RemoveMemoryCallback(cb);
+			}
+
+			CallbacksSet = false;
+		}
+
+		public void UpdateCallbacks(CheckedListBox checklist, bool disableCallbacks)
 		{
 			for (int i = 0; i < checklist.Items.Count; i++)
 			{
 				BreakpointActive[checklist.Items[i].ToString()] = checklist.GetItemChecked(i);
+			}
+			if (disableCallbacks && CallbacksSet)
+			{
+				RemoveCallbacks();
+			}
+			else if (!disableCallbacks && !CallbacksSet)
+			{
+				SetCallbacks();
 			}
 		}
 
