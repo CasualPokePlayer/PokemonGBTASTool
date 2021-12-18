@@ -117,7 +117,7 @@ namespace Gen2TASTool
 			}
 		}
 
-		private int GetReg(string name) => (int)(APIs.Emulation.GetRegister(name) ?? 0);
+		private int GetReg(string name) => (int)(APIs.Emulation.GetRegister(name) ?? throw new NullReferenceException());
 
 		private int DereferenceHL()
 		{

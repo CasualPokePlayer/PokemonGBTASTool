@@ -3,6 +3,8 @@
 		<LangVersion>9.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<TargetFramework>net48</TargetFramework>
+		<ApplicationIcon></ApplicationIcon>
+		<Win32Resource />
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="all" />
@@ -17,6 +19,9 @@
 		<EmbeddedResource Include="pokegold.sym" />
 		<EmbeddedResource Include="pokesilver.sym" />
 		<EmbeddedResource Include="pokecrystal.sym" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="icon.ico" />
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Copy SourceFiles="$(OutputPath)$(MSBuildProjectName).dll" DestinationFolder="$(ProjectDir)../BizHawk/ExternalTools" />

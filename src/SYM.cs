@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 
 namespace Gen2TASTool
 {
@@ -81,7 +82,7 @@ namespace Gen2TASTool
 				_ => throw new Exception()
 			};
 
-			var reader = new StreamReader(typeof(SYM).Assembly.GetManifestResourceStream(file));
+			var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(file));
 			reader.ReadLine(); // skip first line
 			while (true)
 			{
@@ -100,9 +101,9 @@ namespace Gen2TASTool
 			{
 				return SymEntries[symbol].Bank;
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				MessageCb($"Caught {e.GetType().FullName} while getting bank for symbol {symbol}");
+				MessageCb($"Caught {ex.GetType().FullName} while getting bank for symbol {symbol}");
 				return 0;
 			}
 		}
@@ -113,9 +114,9 @@ namespace Gen2TASTool
 			{
 				return SymEntries[symbol].SystemBusAddress;
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				MessageCb($"Caught {e.GetType().FullName} while getting system bus address for symbol {symbol}");
+				MessageCb($"Caught {ex.GetType().FullName} while getting system bus address for symbol {symbol}");
 				return 0;
 			}
 		}
@@ -126,9 +127,9 @@ namespace Gen2TASTool
 			{
 				return SymEntries[symbol].Domain;
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				MessageCb($"Caught {e.GetType().FullName} while getting domain for symbol {symbol}");
+				MessageCb($"Caught {ex.GetType().FullName} while getting domain for symbol {symbol}");
 				return "";
 			}
 		}
@@ -139,9 +140,9 @@ namespace Gen2TASTool
 			{
 				return SymEntries[symbol].DomainAddress;
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				MessageCb($"Caught {e.GetType().FullName} while getting domain address for symbol {symbol}");
+				MessageCb($"Caught {ex.GetType().FullName} while getting domain address for symbol {symbol}");
 				return 0;
 			}
 		}

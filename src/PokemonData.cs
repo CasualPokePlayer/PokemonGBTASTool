@@ -103,9 +103,9 @@ namespace Gen2TASTool
 			{
 				return PokemonMoves[index];
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				MessageCb($"Caught {e.GetType().FullName} while getting pokemon move name for index {index}");
+				MessageCb($"Caught {ex.GetType().FullName} while getting pokemon move name for index {index}");
 				return "";
 			}
 		}
@@ -116,9 +116,9 @@ namespace Gen2TASTool
 			{
 				return PokemonSpecies[index];
 			}
-			catch (Exception e)
+			catch (Exception ex)
 			{
-				MessageCb($"Caught {e.GetType().FullName} while getting pokemon species name for index {index}");
+				MessageCb($"Caught {ex.GetType().FullName} while getting pokemon species name for index {index}");
 				return "";
 			}
 		}
