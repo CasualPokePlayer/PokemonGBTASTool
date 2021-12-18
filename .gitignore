@@ -1,0 +1,7 @@
+/src/.vs
+/src/bin/*
+!/src/bin/.keep
+/src/obj/*
+!/src/obj/.keep
+/BizHawk/*
+!/BizHawk/.keep
