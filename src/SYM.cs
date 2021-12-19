@@ -134,7 +134,7 @@ namespace PokemonGBTASTool
 	public sealed class RedSYM : SYM
 	{
 		public RedSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
-			: base("Gen2TASTool.res.pokered.sym", messageCb, which, false)
+			: base("PokemonGBTASTool.res.pokered.sym", messageCb, which, false)
 		{
 		}
 	}
@@ -142,7 +142,7 @@ namespace PokemonGBTASTool
 	public sealed class BlueSYM : SYM
 	{
 		public BlueSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
-			: base("Gen2TASTool.res.pokeblue.sym", messageCb, which, false)
+			: base("PokemonGBTASTool.res.pokeblue.sym", messageCb, which, false)
 		{
 		}
 	}
@@ -150,7 +150,7 @@ namespace PokemonGBTASTool
 	public sealed class YellowSYM : SYM
 	{
 		public YellowSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
-			: base("Gen2TASTool.res.pokeyellow.sym", messageCb, which, false)
+			: base("PokemonGBTASTool.res.pokeyellow.sym", messageCb, which, false)
 		{
 		}
 	}
@@ -158,7 +158,7 @@ namespace PokemonGBTASTool
 	public sealed class GoldSYM : SYM
 	{
 		public GoldSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
-			: base("Gen2TASTool.res.pokegold.sym", messageCb, which, true)
+			: base("PokemonGBTASTool.res.pokegold.sym", messageCb, which, true)
 		{
 		}
 	}
@@ -166,7 +166,7 @@ namespace PokemonGBTASTool
 	public sealed class SilverSYM : SYM
 	{
 		public SilverSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
-			: base("Gen2TASTool.res.pokesilver.sym", messageCb, which, true)
+			: base("PokemonGBTASTool.res.pokesilver.sym", messageCb, which, true)
 		{
 		}
 	}
@@ -174,7 +174,7 @@ namespace PokemonGBTASTool
 	public sealed class CrystalSYM : SYM
 	{
 		public CrystalSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
-			: base("Gen2TASTool.res.pokecrystal.sym", messageCb, which, true)
+			: base("PokemonGBTASTool.res.pokecrystal.sym", messageCb, which, true)
 		{
 		}
 	}

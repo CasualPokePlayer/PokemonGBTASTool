@@ -14,7 +14,7 @@ namespace PokemonGBTASTool
 	"EA9BCAE617FDF159B045185467AE58B2E4A48B9A", "D7037C83E1AE5B39BDE3C30787637BA1D4C48CE2", "CC7D03262EBFAF2F06772C1A480C7D9D5F4A38E1", // red, blue, yellow hashes
 	"D8B8A3600A465308C9953DFA04F0081C05BDCB94", "49B163F7E57702BC939D642A18F591DE55D92DAE", "F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133") // gold, silver, crystal hashes
 	]
-	[ExternalToolEmbeddedIcon("Gen2TASTool.res.icon.ico")]
+	[ExternalToolEmbeddedIcon("PokemonGBTASTool.res.icon.ico")]
 	public partial class PokemonGBTASToolForm : ToolFormBase, IExternalToolForm
 	{
 		public ApiContainer? ApiContainer { get; set; }
@@ -39,7 +39,7 @@ namespace PokemonGBTASTool
 			checkedListBox1.Items.AddRange(Gen2Callbacks.BreakpointList);
 			checkedListBox1.CheckOnClick = true;
 			PkmnData = new PokemonData(ShowMessage);
-			Icon = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Gen2TASTool.res.icon.ico"));
+			Icon = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("PokemonGBTASTool.res.icon.ico"));
 			Closing += (sender, args) => APIs.EmuClient.SetGameExtraPadding(0, 0, 0, 0);
 		}
 
