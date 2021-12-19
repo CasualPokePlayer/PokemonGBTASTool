@@ -1,6 +1,6 @@
-﻿namespace Gen2TASTool
+﻿namespace PokemonGBTASTool
 {
-	public partial class Gen2TASToolForm
+	public partial class PokemonGBTASToolForm
 	{
 		/// <summary>
 		/// Required designer variable.

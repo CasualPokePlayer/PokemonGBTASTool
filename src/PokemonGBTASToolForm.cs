@@ -7,14 +7,14 @@ using System.Reflection;
 using BizHawk.Client.Common;
 using BizHawk.Client.EmuHawk;
 
-namespace Gen2TASTool
+namespace PokemonGBTASTool
 {
-	[ExternalTool("Gen2TASTool", Description = "A tool to help with TASing Gen 2 Pokemon games.")]
+	[ExternalTool("PokemonGBTASTool", Description = "A tool to help with TASing GB Pokemon games.")]
 	[ExternalToolApplicability.RomWhitelist
 	(CoreSystem.GameBoy, "D8B8A3600A465308C9953DFA04F0081C05BDCB94", "49B163F7E57702BC939D642A18F591DE55D92DAE", "F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133")
 	] // gold, silver, crystal hashes
 	[ExternalToolEmbeddedIcon("Gen2TASTool.res.icon.ico")]
-	public partial class Gen2TASToolForm : ToolFormBase, IExternalToolForm
+	public partial class PokemonGBTASToolForm : ToolFormBase, IExternalToolForm
 	{
 		public ApiContainer? ApiContainer { get; set; }
 		private ApiContainer APIs => ApiContainer ?? throw new NullReferenceException();
@@ -22,8 +22,9 @@ namespace Gen2TASTool
 		private SYM? SYM { get; set; }
 		private SYM GBSym => SYM ?? throw new NullReferenceException();
 
-		private Gen2Callbacks? Gen2Callbacks { get; set; }
-		private Gen2Callbacks CBs => Gen2Callbacks ?? throw new NullReferenceException();
+		private Callbacks? Callbacks { get; set; }
+
+		private Callbacks CBs => Callbacks ?? throw new NullReferenceException();
 
 		private PokemonData PkmnData { get; }
 
@@ -31,7 +32,7 @@ namespace Gen2TASTool
 
 		protected override string WindowTitleStatic => "Gen2TASTool";
 
-		public Gen2TASToolForm()
+		public PokemonGBTASToolForm()
 		{
 			InitializeComponent();
 			checkedListBox1.Items.AddRange(Gen2Callbacks.BreakpointList);
@@ -56,7 +57,7 @@ namespace Gen2TASTool
 				"F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133" => new CrystalSYM(ShowMessage, ""),
 				_ => throw new Exception()
 			};
-			Gen2Callbacks = new Gen2Callbacks(APIs, SYM, () => checkBox1.Checked, "");
+			Callbacks = GBSym.IsGen2 ? new Gen2Callbacks(APIs, GBSym, () => checkBox1.Checked, "") : new Gen1Callbacks(APIs, GBSym, () => checkBox1.Checked, "");
 			APIs.EmuClient.SetGameExtraPadding(0, 0, 105, 0);
 		}
 
@@ -73,20 +74,23 @@ namespace Gen2TASTool
 
 		public override void UpdateValues(ToolFormUpdateType type)
 		{
-			CBs.UpdateCallbacks(checkedListBox1, checkBox2.Checked);
-			APIs.Gui.Text(5, 5, $"{GetEnemyMonName()}'s Max HP: {CpuReadBigU16("wEnemyMonMaxHP")}", Color.White, "topright");
-			APIs.Gui.Text(5, 25, $"{GetEnemyMonName()}'s Cur HP: {CpuReadBigU16("wEnemyMonHP")}", Color.White, "topright");
-			APIs.Gui.Text(5, 55, $"{GetEnemyMonName()}'s Move: {GetEnemyMonMove()}", Color.White, "topright");
-			APIs.Gui.Text(5, 85, $"Crit Roll: {CBs.CritRng.Roll}", Color.White, "topright");
-			APIs.Gui.Text(5, 105, $"Crit Chance: {CBs.CritRng.Chance}", Color.White, "topright");
-			APIs.Gui.Text(5, 135, $"Damage Roll: {CBs.DamageRng.Roll}", Color.White, "topright");
-			APIs.Gui.Text(5, 165, $"Accuracy Roll: {CBs.AccuracyRng.Roll}", Color.White, "topright");
-			APIs.Gui.Text(5, 185, $"Move Accuracy: {CBs.AccuracyRng.Chance}", Color.White, "topright");
-			APIs.Gui.Text(5, 215, $"Effect Roll: {CBs.EffectRng.Roll}", Color.White, "topright");
-			APIs.Gui.Text(5, 235, $"Effect Chance: {CBs.EffectRng.Chance}", Color.White, "topright");
-			APIs.Gui.Text(5, 265, $"Catch Roll: {CBs.CatchRng.Roll}", Color.White, "topright");
-			APIs.Gui.Text(5, 285, $"Catch Chance: {CBs.CatchRng.Chance}", Color.White, "topright");
-			APIs.Gui.Text(5, 315, $"Random Sub: {CpuReadU8("hRandomSub")}", Color.White, "topright");
+			if (CBs is Gen2Callbacks gen2Cbs)
+			{
+				gen2Cbs.UpdateCallbacks(checkedListBox1, checkBox2.Checked);
+				APIs.Gui.Text(5, 5, $"{GetEnemyMonName()}'s Max HP: {CpuReadBigU16("wEnemyMonMaxHP")}", Color.White, "topright");
+				APIs.Gui.Text(5, 25, $"{GetEnemyMonName()}'s Cur HP: {CpuReadBigU16("wEnemyMonHP")}", Color.White, "topright");
+				APIs.Gui.Text(5, 55, $"{GetEnemyMonName()}'s Move: {GetEnemyMonMove()}", Color.White, "topright");
+				APIs.Gui.Text(5, 85, $"Crit Roll: {gen2Cbs.CritRng.Roll}", Color.White, "topright");
+				APIs.Gui.Text(5, 105, $"Crit Chance: {gen2Cbs.CritRng.Chance}", Color.White, "topright");
+				APIs.Gui.Text(5, 135, $"Damage Roll: {gen2Cbs.DamageRng.Roll}", Color.White, "topright");
+				APIs.Gui.Text(5, 165, $"Accuracy Roll: {gen2Cbs.AccuracyRng.Roll}", Color.White, "topright");
+				APIs.Gui.Text(5, 185, $"Move Accuracy: {gen2Cbs.AccuracyRng.Chance}", Color.White, "topright");
+				APIs.Gui.Text(5, 215, $"Effect Roll: {gen2Cbs.EffectRng.Roll}", Color.White, "topright");
+				APIs.Gui.Text(5, 235, $"Effect Chance: {gen2Cbs.EffectRng.Chance}", Color.White, "topright");
+				APIs.Gui.Text(5, 265, $"Catch Roll: {gen2Cbs.CatchRng.Roll}", Color.White, "topright");
+				APIs.Gui.Text(5, 285, $"Catch Chance: {gen2Cbs.CatchRng.Chance}", Color.White, "topright");
+				APIs.Gui.Text(5, 315, $"Random Sub: {CpuReadU8("hRandomSub")}", Color.White, "topright");
+			}
 		}
 
 		private void ShowMessage(string message) => DialogController.ShowMessageBox(message);

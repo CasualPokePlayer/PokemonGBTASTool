@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 
-namespace Gen2TASTool
+namespace PokemonGBTASTool
 {
 	public abstract class SYM
 	{
@@ -53,13 +53,13 @@ namespace Gen2TASTool
 		}
 
 		private readonly Dictionary<string, SYMEntry> SymEntries = new();
-		private Gen2TASToolForm.MessageCallback MessageCb { get; }
+		private PokemonGBTASToolForm.MessageCallback MessageCb { get; }
 
 		private string Which { get; }
 
 		public bool IsGen2 { get; }
 
-		public SYM(string sym, Gen2TASToolForm.MessageCallback messageCb, string which, bool isGen2)
+		public SYM(string sym, PokemonGBTASToolForm.MessageCallback messageCb, string which, bool isGen2)
 		{
 			MessageCb = messageCb;
 			Which = which;
@@ -133,7 +133,7 @@ namespace Gen2TASTool
 
 	public sealed class RedSYM : SYM
 	{
-		public RedSYM(Gen2TASToolForm.MessageCallback messageCb, string which)
+		public RedSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
 			: base("Gen2TASTool.res.pokered.sym", messageCb, which, false)
 		{
 		}
@@ -141,7 +141,7 @@ namespace Gen2TASTool
 
 	public sealed class BlueSYM : SYM
 	{
-		public BlueSYM(Gen2TASToolForm.MessageCallback messageCb, string which)
+		public BlueSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
 			: base("Gen2TASTool.res.pokeblue.sym", messageCb, which, false)
 		{
 		}
@@ -149,7 +149,7 @@ namespace Gen2TASTool
 
 	public sealed class YellowSYM : SYM
 	{
-		public YellowSYM(Gen2TASToolForm.MessageCallback messageCb, string which)
+		public YellowSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
 			: base("Gen2TASTool.res.pokeyellow.sym", messageCb, which, false)
 		{
 		}
@@ -157,7 +157,7 @@ namespace Gen2TASTool
 
 	public sealed class GoldSYM : SYM
 	{
-		public GoldSYM(Gen2TASToolForm.MessageCallback messageCb, string which)
+		public GoldSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
 			: base("Gen2TASTool.res.pokegold.sym", messageCb, which, true)
 		{
 		}
@@ -165,7 +165,7 @@ namespace Gen2TASTool
 
 	public sealed class SilverSYM : SYM
 	{
-		public SilverSYM(Gen2TASToolForm.MessageCallback messageCb, string which)
+		public SilverSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
 			: base("Gen2TASTool.res.pokesilver.sym", messageCb, which, true)
 		{
 		}
@@ -173,7 +173,7 @@ namespace Gen2TASTool
 
 	public sealed class CrystalSYM : SYM
 	{
-		public CrystalSYM(Gen2TASToolForm.MessageCallback messageCb, string which)
+		public CrystalSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
 			: base("Gen2TASTool.res.pokecrystal.sym", messageCb, which, true)
 		{
 		}

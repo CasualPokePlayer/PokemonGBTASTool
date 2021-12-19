@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using BizHawk.Client.Common;
 using BizHawk.Emulation.Common;
 
-namespace Gen2TASTool
+namespace PokemonGBTASTool
 {
 	public abstract class Callbacks
 	{
@@ -109,6 +109,77 @@ namespace Gen2TASTool
 			{
 				MaybePause(breakpoint);
 			};
+		}
+	}
+
+	public sealed class Gen1Callbacks : Callbacks
+	{
+		public static readonly string[] BreakpointList =
+		{
+				"Accuracy Roll",
+				"Damage Roll",
+				"Effect Roll",
+				"Crit Roll",
+				"Metronome Roll",
+				"Catch Roll",
+				// add ai things todo
+				"Prompt Button",
+				"Wait Button",
+				"Check A Press Overworld",
+		};
+
+		public RollChance AccuracyRng = new();
+		public RollChance DamageRng = new();
+		public RollChance EffectRng = new();
+		public RollChance CritRng = new();
+		public RollChance MetronomeRng = new();
+		public RollChance CatchRng = new();
+
+		public Gen1Callbacks(ApiContainer apis, SYM sym, Func<bool> getBreakpointsActive, string which)
+			: base(apis, sym, getBreakpointsActive, which, BreakpointList)
+		{
+		}
+
+		protected override void SetCallbacks()
+		{
+			// todo: actually do this
+			/*
+			base.SetCallbacks();
+			string romScope = Which + "ROM";
+
+			// rng callbacks mostly just set two things, the roll and the chance.
+			// for simplicity all RNG values have both of these and if they do not use one it is set to 0
+
+			// accuracy roll
+			CallbackList.Add(MakeRollChanceCallback(AccuracyRng, () => GetReg("A"), () => GetReg("B"), "Accuracy Roll"));
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_CheckHit.skip_brightpowder") + 8, romScope);
+			// damage roll
+			CallbackList.Add(MakeRollChanceCallback(DamageRng, () => GetReg("A"), () => 0, "Damage Roll"));
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_DamageVariation.loop") + 8, romScope);
+			// effect roll
+			CallbackList.Add(MakeRollChanceCallback(EffectRng, () => GetReg("A"), () => DereferenceHL(), "Effect Roll"));
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_EffectChance.got_move_chance") + 4, romScope);
+			// crit roll
+			CallbackList.Add(MakeRollChanceCallback(CritRng, () => GetReg("A"), () => DereferenceHL(), "Crit Roll"));
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_Critical.Tally") + 9, romScope);
+			// metronome roll
+			CallbackList.Add(MakeRollChanceCallback(MetronomeRng, () => GetReg("B"), () => 0, "Metronome Roll"));
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_Metronome.GetMove") + 26, romScope);
+			// catch roll
+			CallbackList.Add(MakeRollChanceCallback(CatchRng, () => GetReg("A"), () => GetReg("B"), "Catch Roll"));
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("PokeBallEffect.max_2") + 7, romScope);
+
+			// non rng callbacks are typically only used for pausing, make a generic callback for them
+
+			// prompt button
+			CallbackList.Add(MakeGenericCallback("Prompt Button"));
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("PromptButton"), romScope);
+			// wait button
+			CallbackList.Add(MakeGenericCallback("Wait Button"));
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("WaitButton") + 10, romScope);
+			// check a ow
+			CallbackList.Add(MakeGenericCallback("Check A Press Overworld"));
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("CheckAPressOW"), romScope);*/
 		}
 	}
 

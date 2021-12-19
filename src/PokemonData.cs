@@ -1,6 +1,6 @@
 using System;
 
-namespace Gen2TASTool
+namespace PokemonGBTASTool
 {
 	public sealed class PokemonData
 	{
@@ -90,9 +90,9 @@ namespace Gen2TASTool
 			"Mon 0xFC", "Mon 0xFD", "Mon 0xFE", "Mon 0xFF"
 		};
 
-		private Gen2TASToolForm.MessageCallback MessageCb { get; }
+		private PokemonGBTASToolForm.MessageCallback MessageCb { get; }
 
-		public PokemonData(Gen2TASToolForm.MessageCallback messageCb)
+		public PokemonData(PokemonGBTASToolForm.MessageCallback messageCb)
 		{
 			MessageCb = messageCb;
 		}
