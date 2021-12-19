@@ -9,10 +9,11 @@ using BizHawk.Client.EmuHawk;
 
 namespace PokemonGBTASTool
 {
-	[ExternalTool("PokemonGBTASTool", Description = "A tool to help with TASing GB Pokemon games.")]
-	[ExternalToolApplicability.RomWhitelist
-	(CoreSystem.GameBoy, "D8B8A3600A465308C9953DFA04F0081C05BDCB94", "49B163F7E57702BC939D642A18F591DE55D92DAE", "F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133")
-	] // gold, silver, crystal hashes
+	[ExternalTool("Pokemon GB TAS Tool", Description = "A tool to help with TASing GB Pokemon games.")]
+	[ExternalToolApplicability.RomWhitelist(CoreSystem.GameBoy,
+	"EA9BCAE617FDF159B045185467AE58B2E4A48B9A", "D7037C83E1AE5B39BDE3C30787637BA1D4C48CE2", "CC7D03262EBFAF2F06772C1A480C7D9D5F4A38E1", // red, blue, yellow hashes
+	"D8B8A3600A465308C9953DFA04F0081C05BDCB94", "49B163F7E57702BC939D642A18F591DE55D92DAE", "F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133") // gold, silver, crystal hashes
+	]
 	[ExternalToolEmbeddedIcon("Gen2TASTool.res.icon.ico")]
 	public partial class PokemonGBTASToolForm : ToolFormBase, IExternalToolForm
 	{
@@ -30,7 +31,7 @@ namespace PokemonGBTASTool
 
 		public delegate void MessageCallback(string message);
 
-		protected override string WindowTitleStatic => "Gen2TASTool";
+		protected override string WindowTitleStatic => "Pokemon GB TAS Tool";
 
 		public PokemonGBTASToolForm()
 		{
@@ -57,7 +58,9 @@ namespace PokemonGBTASTool
 				"F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133" => new CrystalSYM(ShowMessage, ""),
 				_ => throw new Exception()
 			};
-			Callbacks = GBSym.IsGen2 ? new Gen2Callbacks(APIs, GBSym, () => checkBox1.Checked, "") : new Gen1Callbacks(APIs, GBSym, () => checkBox1.Checked, "");
+			Callbacks = GBSym.IsGen2
+				? new Gen2Callbacks(APIs, GBSym, () => checkBox1.Checked, "")
+				: new Gen1Callbacks(APIs, GBSym, () => checkBox1.Checked, "");
 			APIs.EmuClient.SetGameExtraPadding(0, 0, 105, 0);
 		}
 
@@ -69,8 +72,9 @@ namespace PokemonGBTASTool
 			return (ushort)APIs.Memory.ReadU16(GBSym.GetSYMDomAddr(symbol), GBSym.GetSYMDomain(symbol));
 		}
 
-		private string GetEnemyMonName() => PkmnData.GetPokemonSpeciesName(CpuReadU8("wEnemyMonSpecies"));
-		private string GetEnemyMonMove() => PkmnData.GetPokemonMoveName(CpuReadU8("wCurEnemyMove"));
+		private string GetEnemyMonName() => PkmnData.GetPokemonSpeciesName(CpuReadU8("wEnemyMonSpecies"), GBSym.IsGen2);
+		private string GetEnemyMonMove() => PkmnData.GetPokemonMoveName(CpuReadU8(GBSym.IsGen2 ? "wCurEnemyMove" : "wEnemySelectedMove"));
+		private byte GetDSUM() => (byte)((CpuReadU8("hRandomAdd") + CpuReadU8("hRandomSub")) & 0xFF);
 
 		public override void UpdateValues(ToolFormUpdateType type)
 		{
@@ -90,6 +94,21 @@ namespace PokemonGBTASTool
 				APIs.Gui.Text(5, 265, $"Catch Roll: {gen2Cbs.CatchRng.Roll}", Color.White, "topright");
 				APIs.Gui.Text(5, 285, $"Catch Chance: {gen2Cbs.CatchRng.Chance}", Color.White, "topright");
 				APIs.Gui.Text(5, 315, $"Random Sub: {CpuReadU8("hRandomSub")}", Color.White, "topright");
+			}
+			else if (CBs is Gen1Callbacks gen1Cbs)
+			{
+				APIs.Gui.Text(5, 5, $"Random Add: {CpuReadU8("hRandomAdd")}", Color.White, "bottomright");
+				APIs.Gui.Text(5, 35, $"DSUM: {GetDSUM()}", Color.White, "bottomright");
+				APIs.Gui.Text(5, 5, $"Crit Roll: {gen1Cbs.CritRng.Roll}", Color.White, "topright");
+				APIs.Gui.Text(5, 25, $"Crit Chance: {gen1Cbs.CritRng.Chance}", Color.White, "topright");
+				APIs.Gui.Text(5, 55, $"Damage Roll: {gen1Cbs.DamageRng.Roll}", Color.White, "topright");
+				APIs.Gui.Text(5, 85, $"Accuracy Roll: {gen1Cbs.AccuracyRng.Roll}", Color.White, "topright");
+				APIs.Gui.Text(5, 105, $"Move Accuracy: {gen1Cbs.AccuracyRng.Chance}", Color.White, "topright");
+				APIs.Gui.Text(5, 135, $"Enemy Move: {GetEnemyMonMove()}", Color.White, "topright");
+				APIs.Gui.Text(5, 165, $"1st Catch Roll: {gen1Cbs.Catch1Rng.Roll}", Color.White, "topright");
+				APIs.Gui.Text(5, 185, $"1st Catch Chance: {gen1Cbs.Catch1Rng.Chance}", Color.White, "topright");
+				APIs.Gui.Text(5, 215, $"2nd Catch Roll: {gen1Cbs.Catch2Rng.Roll}", Color.White, "topright");
+				APIs.Gui.Text(5, 235, $"2nd Catch Chance: {gen1Cbs.Catch2Rng.Chance}", Color.White, "topright");
 			}
 		}
 

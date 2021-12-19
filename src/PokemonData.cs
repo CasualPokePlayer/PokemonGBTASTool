@@ -4,7 +4,7 @@ namespace PokemonGBTASTool
 {
 	public sealed class PokemonData
 	{
-		private static readonly string[] PokemonMoves = new string[256]
+		private static string[] PokemonMoves { get; } = new string[256]
 		{
 			"No Move",  "Pound", "Karate Chop", "DoubleSlap", "Comet Punch", "Mega Punch", "Pay Day",
 			"Fire Punch", "Ice Punch", "ThunderPunch", "Scratch", "ViceGrip", "Guillotine",
@@ -51,7 +51,7 @@ namespace PokemonGBTASTool
 			"Move 0xFC", "Move 0xFD", "Move 0xFE", "Move 0xFF"
 		};
 
-		private static readonly string[] PokemonSpecies = new string[256]
+		private static string[] Gen2PokemonSpecies { get; } = new string[256]
 		{
 			"No Pokemon", "Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard",
 			"Squirtle", "Wartortle", "Blastoise", "Caterpie", "Metapod", "Butterfree",
@@ -110,11 +110,11 @@ namespace PokemonGBTASTool
 			}
 		}
 
-		public string GetPokemonSpeciesName(byte index)
+		public string GetPokemonSpeciesName(byte index, bool gen2)
 		{
 			try
 			{
-				return PokemonSpecies[index];
+				return gen2 ? Gen2PokemonSpecies[index] : Gen2PokemonSpecies[index];
 			}
 			catch (Exception ex)
 			{
