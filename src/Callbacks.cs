@@ -17,13 +17,13 @@ namespace Gen2TASTool
 		}
 
 		protected ApiContainer APIs { get; }
-
 		protected SYM GBSym { get; }
 
-		protected readonly Func<bool> BreakpointsActive;
-		protected readonly Dictionary<string, bool> BreakpointActive = new();
 		protected readonly List<MemoryCallbackDelegate> CallbackList = new();
-		protected bool CallbacksSet;
+
+		private bool CallbacksSet;
+		private readonly Func<bool> BreakpointsActive;
+		private readonly Dictionary<string, bool> BreakpointActive = new();
 		private readonly string Which;
 
 		public Callbacks(ApiContainer apis, SYM sym, Func<bool> getBreakpointsActive, string which, string[] breakpointList)
@@ -39,7 +39,10 @@ namespace Gen2TASTool
 			SetCallbacks();
 		}
 
-		protected abstract void SetCallbacks();
+		protected virtual void SetCallbacks()
+		{
+			CallbacksSet = true;
+		}
 
 		private void RemoveCallbacks()
 		{
@@ -142,6 +145,8 @@ namespace Gen2TASTool
 
 		protected override void SetCallbacks()
 		{
+			base.SetCallbacks();
+
 			// rng callbacks mostly just set two things, the roll and the chance.
 			// for simplicity all RNG values have both of these and if they do not use one it is set to 0
 
@@ -178,8 +183,6 @@ namespace Gen2TASTool
 			// check a ow
 			CallbackList.Add(MakeGenericCallback("Check A Press Overworld"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("CheckAPressOW"), "ROM");
-
-			CallbacksSet = true;
 		}
 	}
 }

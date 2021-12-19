@@ -2,7 +2,7 @@ using System;
 
 namespace Gen2TASTool
 {
-	public class PokemonData
+	public sealed class PokemonData
 	{
 		private static readonly string[] PokemonMoves = new string[256]
 		{
