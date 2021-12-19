@@ -44,7 +44,7 @@ namespace Gen2TASTool
 		{
 			/*ROM*/ "ROM", "ROM", "ROM", "ROM", "ROM", "ROM", "ROM", "ROM",
 			/*VRAM*/ "VRAM", "VRAM",
-			/*SRAM*/ "SRAM", "SRAM",
+			/*SRAM*/ "CartRAM", "CartRAM",
 			/*WRAM*/ "WRAM", "WRAM",
 			/*Echo-OAM-HRAM*/ "", "HRAM",
 		};
