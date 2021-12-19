@@ -6,22 +6,8 @@ using System.Reflection;
 
 namespace Gen2TASTool
 {
-	public class SYM
+	public abstract class SYM
 	{
-		public enum Gen2Game
-		{
-			Gold,
-			Silver,
-			Crystal
-		}
-
-		private readonly Gen2Game Game;
-
-		public bool IsGold => Game is Gen2Game.Gold;
-		public bool IsSilver => Game is Gen2Game.Silver;
-		public bool IsGS => Game is Gen2Game.Gold or Gen2Game.Silver;
-		public bool IsCrys => Game is Gen2Game.Crystal;
-
 		private static readonly uint[] bankSizes = new uint[16]
 		{
 			/*ROM*/ 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000,
@@ -69,23 +55,17 @@ namespace Gen2TASTool
 		private readonly Dictionary<string, SYMEntry> SymEntries = new();
 		private Gen2TASToolForm.MessageCallback MessageCb { get; }
 
-		private readonly string Which;
+		private string Which { get; }
 
-		public SYM(Gen2Game game, Gen2TASToolForm.MessageCallback messageCb, string which)
+		public bool IsGen2 { get; }
+
+		public SYM(string sym, Gen2TASToolForm.MessageCallback messageCb, string which, bool isGen2)
 		{
-			Game = game;
 			MessageCb = messageCb;
 			Which = which;
+			IsGen2 = isGen2;
 
-			string file = game switch
-			{
-				Gen2Game.Gold => "Gen2TASTool.pokegold.sym",
-				Gen2Game.Silver => "Gen2TASTool.pokesilver.sym",
-				Gen2Game.Crystal => "Gen2TASTool.pokecrystal.sym",
-				_ => throw new Exception()
-			};
-
-			var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(file));
+			var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(sym));
 			reader.ReadLine(); // skip first line
 			while (true)
 			{
@@ -148,6 +128,54 @@ namespace Gen2TASTool
 				MessageCb($"Caught {ex.GetType().FullName} while getting domain address for symbol {symbol}");
 				return 0;
 			}
+		}
+	}
+
+	public sealed class RedSYM : SYM
+	{
+		public RedSYM(Gen2TASToolForm.MessageCallback messageCb, string which)
+			: base("Gen2TASTool.pokered.sym", messageCb, which, false)
+		{
+		}
+	}
+
+	public sealed class BlueSYM : SYM
+	{
+		public BlueSYM(Gen2TASToolForm.MessageCallback messageCb, string which)
+			: base("Gen2TASTool.pokeblue.sym", messageCb, which, false)
+		{
+		}
+	}
+
+	public sealed class YellowSYM : SYM
+	{
+		public YellowSYM(Gen2TASToolForm.MessageCallback messageCb, string which)
+			: base("Gen2TASTool.pokeyellow.sym", messageCb, which, false)
+		{
+		}
+	}
+
+	public sealed class GoldSYM : SYM
+	{
+		public GoldSYM(Gen2TASToolForm.MessageCallback messageCb, string which)
+			: base("Gen2TASTool.pokegold.sym", messageCb, which, true)
+		{
+		}
+	}
+
+	public sealed class SilverSYM : SYM
+	{
+		public SilverSYM(Gen2TASToolForm.MessageCallback messageCb, string which)
+			: base("Gen2TASTool.pokesilver.sym", messageCb, which, true)
+		{
+		}
+	}
+
+	public sealed class CrystalSYM : SYM
+	{
+		public CrystalSYM(Gen2TASToolForm.MessageCallback messageCb, string which)
+			: base("Gen2TASTool.pokecrystal.sym", messageCb, which, true)
+		{
 		}
 	}
 }

@@ -25,7 +25,7 @@ namespace Gen2TASTool
 		private Gen2Callbacks? Gen2Callbacks { get; set; }
 		private Gen2Callbacks CBs => Gen2Callbacks ?? throw new NullReferenceException();
 
-		private readonly PokemonData PkmnData;
+		private PokemonData PkmnData { get; }
 
 		public delegate void MessageCallback(string message);
 
@@ -49,14 +49,13 @@ namespace Gen2TASTool
 				ShowMessage("Only Gambatte is supported with this tool");
 				Close();
 			}
-			SYM.Gen2Game gen2Game = APIs.GameInfo.GetGameInfo()?.Hash switch
+			SYM = APIs.GameInfo.GetGameInfo()?.Hash switch
 			{
-				"D8B8A3600A465308C9953DFA04F0081C05BDCB94" => SYM.Gen2Game.Gold,
-				"49B163F7E57702BC939D642A18F591DE55D92DAE" => SYM.Gen2Game.Silver,
-				"F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133" => SYM.Gen2Game.Crystal,
+				"D8B8A3600A465308C9953DFA04F0081C05BDCB94" => new GoldSYM(ShowMessage, ""),
+				"49B163F7E57702BC939D642A18F591DE55D92DAE" => new SilverSYM(ShowMessage, ""),
+				"F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133" => new CrystalSYM(ShowMessage, ""),
 				_ => throw new Exception()
 			};
-			SYM = new SYM(gen2Game, ShowMessage, "");
 			Gen2Callbacks = new Gen2Callbacks(APIs, SYM, () => checkBox1.Checked, "");
 			APIs.EmuClient.SetGameExtraPadding(0, 0, 105, 0);
 		}

@@ -18,13 +18,14 @@ namespace Gen2TASTool
 
 		protected ApiContainer APIs { get; }
 		protected SYM GBSym { get; }
+		protected string Which { get; }
 
 		protected readonly List<MemoryCallbackDelegate> CallbackList = new();
 
-		private bool CallbacksSet;
-		private readonly Func<bool> BreakpointsActive;
+		private bool CallbacksSet { get; set; }
+		private Func<bool> BreakpointsActive { get; }
+
 		private readonly Dictionary<string, bool> BreakpointActive = new();
-		private readonly string Which;
 
 		public Callbacks(ApiContainer apis, SYM sym, Func<bool> getBreakpointsActive, string which, string[] breakpointList)
 		{
@@ -146,43 +147,44 @@ namespace Gen2TASTool
 		protected override void SetCallbacks()
 		{
 			base.SetCallbacks();
+			string romScope = Which + "ROM";
 
 			// rng callbacks mostly just set two things, the roll and the chance.
 			// for simplicity all RNG values have both of these and if they do not use one it is set to 0
 
 			// accuracy roll
 			CallbackList.Add(MakeRollChanceCallback(AccuracyRng, () => GetReg("A"), () => GetReg("B"), "Accuracy Roll"));
-			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_CheckHit.skip_brightpowder") + 8, "ROM");
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_CheckHit.skip_brightpowder") + 8, romScope);
 			// damage roll
 			CallbackList.Add(MakeRollChanceCallback(DamageRng, () => GetReg("A"), () => 0, "Damage Roll"));
-			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_DamageVariation.loop") + 8, "ROM");
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_DamageVariation.loop") + 8, romScope);
 			// effect roll
 			CallbackList.Add(MakeRollChanceCallback(EffectRng, () => GetReg("A"), () => DereferenceHL(), "Effect Roll"));
-			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_EffectChance.got_move_chance") + 4, "ROM");
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_EffectChance.got_move_chance") + 4, romScope);
 			// crit roll
 			CallbackList.Add(MakeRollChanceCallback(CritRng, () => GetReg("A"), () => DereferenceHL(), "Crit Roll"));
-			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_Critical.Tally") + 9, "ROM");
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_Critical.Tally") + 9, romScope);
 			// metronome roll
 			CallbackList.Add(MakeRollChanceCallback(MetronomeRng, () => GetReg("B"), () => 0, "Metronome Roll"));
-			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_Metronome.GetMove") + 26, "ROM");
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_Metronome.GetMove") + 26, romScope);
 			// catch roll
 			CallbackList.Add(MakeRollChanceCallback(CatchRng, () => GetReg("A"), () => GetReg("B"), "Catch Roll"));
-			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("PokeBallEffect.max_2") + 7, "ROM");
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("PokeBallEffect.max_2") + 7, romScope);
 			// pokerus roll
 			CallbackList.Add(MakeRollChanceCallback(PokerusRng, () => GetRandomU16(), () => 0, "Pokerus Roll"));
-			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("GivePokerusAndConvertBerries.loopMons") + 18, "ROM");
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("GivePokerusAndConvertBerries.loopMons") + 18, romScope);
 
 			// non rng callbacks are typically only used for pausing, make a generic callback for them
 
 			// prompt button
 			CallbackList.Add(MakeGenericCallback("Prompt Button"));
-			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("PromptButton"), "ROM");
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("PromptButton"), romScope);
 			// wait button
 			CallbackList.Add(MakeGenericCallback("Wait Button"));
-			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("WaitButton") + 10, "ROM");
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("WaitButton") + 10, romScope);
 			// check a ow
 			CallbackList.Add(MakeGenericCallback("Check A Press Overworld"));
-			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("CheckAPressOW"), "ROM");
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("CheckAPressOW"), romScope);
 		}
 	}
 }
