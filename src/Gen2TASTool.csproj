@@ -16,12 +16,13 @@
 		<Reference Include="BizHawk.WinForms.Controls" HintPath="$(ProjectDir)../BizHawk/dll/BizHawk.WinForms.Controls.dll" />
 	</ItemGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="pokegold.sym" />
-		<EmbeddedResource Include="pokesilver.sym" />
-		<EmbeddedResource Include="pokecrystal.sym" />
-	</ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource Include="icon.ico" />
+    <EmbeddedResource Include="res/pokered.sym" />
+    <EmbeddedResource Include="res/pokeblue.sym" />
+    <EmbeddedResource Include="res/pokeyellow.sym" />
+		<EmbeddedResource Include="res/pokegold.sym" />
+		<EmbeddedResource Include="res/pokesilver.sym" />
+		<EmbeddedResource Include="res/pokecrystal.sym" />
+    <EmbeddedResource Include="res/icon.ico" />
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Copy SourceFiles="$(OutputPath)$(MSBuildProjectName).dll" DestinationFolder="$(ProjectDir)../BizHawk/ExternalTools" />

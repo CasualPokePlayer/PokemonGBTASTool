@@ -13,7 +13,7 @@ namespace Gen2TASTool
 	[ExternalToolApplicability.RomWhitelist
 	(CoreSystem.GameBoy, "D8B8A3600A465308C9953DFA04F0081C05BDCB94", "49B163F7E57702BC939D642A18F591DE55D92DAE", "F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133")
 	] // gold, silver, crystal hashes
-	[ExternalToolEmbeddedIcon("Gen2TASTool.icon.ico")]
+	[ExternalToolEmbeddedIcon("Gen2TASTool.res.icon.ico")]
 	public partial class Gen2TASToolForm : ToolFormBase, IExternalToolForm
 	{
 		public ApiContainer? ApiContainer { get; set; }
@@ -37,7 +37,7 @@ namespace Gen2TASTool
 			checkedListBox1.Items.AddRange(Gen2Callbacks.BreakpointList);
 			checkedListBox1.CheckOnClick = true;
 			PkmnData = new PokemonData(ShowMessage);
-			Icon = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Gen2TASTool.icon.ico"));
+			Icon = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Gen2TASTool.res.icon.ico"));
 			Closing += (sender, args) => APIs.EmuClient.SetGameExtraPadding(0, 0, 0, 0);
 		}
 
