@@ -36,8 +36,6 @@ namespace PokemonGBTASTool
 		public PokemonGBTASToolForm()
 		{
 			InitializeComponent();
-			checkedListBox1.Items.AddRange(Gen2Callbacks.BreakpointList);
-			checkedListBox1.CheckOnClick = true;
 			PkmnData = new PokemonData(ShowMessage);
 			Icon = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("PokemonGBTASTool.res.icon.ico"));
 			Closing += (sender, args) => APIs.EmuClient.SetGameExtraPadding(0, 0, 0, 0);
@@ -64,6 +62,9 @@ namespace PokemonGBTASTool
 			Callbacks = GBSym.IsGen2
 				? new Gen2Callbacks(APIs, GBSym, () => checkBox1.Checked, "")
 				: new Gen1Callbacks(APIs, GBSym, () => checkBox1.Checked, "");
+			checkedListBox1.Items.Clear();
+			checkedListBox1.Items.AddRange(GBSym.IsGen2 ? Gen2Callbacks.BreakpointList : Gen1Callbacks.BreakpointList);
+			checkedListBox1.CheckOnClick = true;
 			APIs.EmuClient.SetGameExtraPadding(0, 0, 105, 0);
 		}
 
