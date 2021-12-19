@@ -8,7 +8,7 @@ using BizHawk.Emulation.Common;
 
 namespace Gen2TASTool
 {
-	public class Callbacks
+	public abstract class Callbacks
 	{
 		public struct RollChance
 		{
@@ -16,18 +16,100 @@ namespace Gen2TASTool
 			public int Chance { get; set; }
 		}
 
-		public RollChance AccuracyRng = new();
-		public RollChance DamageRng = new();
-		public RollChance EffectRng = new();
-		public RollChance CritRng = new();
-		public RollChance MetronomeRng = new();
-		public RollChance CatchRng = new();
-		public RollChance PokerusRng = new();
+		protected ApiContainer APIs { get; }
 
-		private ApiContainer APIs { get; }
+		protected SYM GBSym { get; }
 
-		private SYM GBSym { get; }
+		protected readonly Func<bool> BreakpointsActive;
+		protected readonly Dictionary<string, bool> BreakpointActive = new();
+		protected readonly List<MemoryCallbackDelegate> CallbackList = new();
+		protected bool CallbacksSet;
+		private readonly string Which;
 
+		public Callbacks(ApiContainer apis, SYM sym, Func<bool> getBreakpointsActive, string which, string[] breakpointList)
+		{
+			foreach (string breakpoint in breakpointList)
+			{
+				BreakpointActive.Add(breakpoint, false);
+			}
+			APIs = apis;
+			GBSym = sym;
+			BreakpointsActive = getBreakpointsActive;
+			Which = which;
+			SetCallbacks();
+		}
+
+		protected abstract void SetCallbacks();
+
+		private void RemoveCallbacks()
+		{
+			foreach (var cb in CallbackList)
+			{
+				APIs.MemoryEvents.RemoveMemoryCallback(cb);
+			}
+
+			CallbacksSet = false;
+		}
+
+		public void UpdateCallbacks(CheckedListBox checklist, bool disableCallbacks)
+		{
+			for (int i = 0; i < checklist.Items.Count; i++)
+			{
+				BreakpointActive[checklist.Items[i].ToString()] = checklist.GetItemChecked(i);
+			}
+			if (disableCallbacks && CallbacksSet)
+			{
+				RemoveCallbacks();
+			}
+			else if (!disableCallbacks && !CallbacksSet)
+			{
+				SetCallbacks();
+			}
+		}
+
+		private void MaybePause(string breakpoint)
+		{
+			if (BreakpointsActive() && BreakpointActive[breakpoint])
+			{
+				APIs.EmuClient.Pause();
+			}
+		}
+
+		protected int GetReg(string name) => (int)(APIs.Emulation.GetRegister(Which + name) ?? throw new NullReferenceException());
+
+		protected int DereferenceHL()
+		{
+			var hl = GetReg("H") * 0x100 | GetReg("L");
+			return (int)APIs.Memory.ReadU8(hl, Which + "System Bus");
+		}
+
+		protected int GetRandomU16()
+		{
+			APIs.Memory.SetBigEndian();
+			return (ushort)APIs.Memory.ReadU16(GBSym.GetSYMDomAddr("hRandomAdd"), GBSym.GetSYMDomain("hRandomAdd"));
+		}
+
+		protected MemoryCallbackDelegate MakeRollChanceCallback(RollChance rng, Func<int> getRoll, Func<int> getChance, string breakpoint)
+		{
+			return (uint address, uint value, uint flags) =>
+			{
+				rng.Roll = getRoll();
+				rng.Chance = getChance();
+				MaybePause(breakpoint);
+			};
+		}
+
+		protected MemoryCallbackDelegate MakeGenericCallback(string breakpoint)
+		{
+			return (uint address, uint value, uint flags) =>
+			{
+				MaybePause(breakpoint);
+			};
+		}
+	}
+
+	public sealed class Gen2Callbacks : Callbacks
+	{
 		public static readonly string[] BreakpointList =
 		{
 				"Accuracy Roll",
@@ -45,24 +127,20 @@ namespace Gen2TASTool
 				"Random"
 		};
 
-		private readonly Func<bool> BreakpointsActive;
-		private readonly Dictionary<string, bool> BreakpointActive = new();
-		private readonly List<MemoryCallbackDelegate> CallbackList = new();
-		private bool CallbacksSet;
+		public RollChance AccuracyRng = new();
+		public RollChance DamageRng = new();
+		public RollChance EffectRng = new();
+		public RollChance CritRng = new();
+		public RollChance MetronomeRng = new();
+		public RollChance CatchRng = new();
+		public RollChance PokerusRng = new();
 
-		public Callbacks(ApiContainer apis, SYM sym, Func<bool> getBreakpointsActive)
+		public Gen2Callbacks(ApiContainer apis, SYM sym, Func<bool> getBreakpointsActive, string which)
+			: base(apis, sym, getBreakpointsActive, which, BreakpointList)
 		{
-			foreach (string breakpoint in BreakpointList)
-			{
-				BreakpointActive.Add(breakpoint, false);
-			}
-			APIs = apis;
-			GBSym = sym;
-			BreakpointsActive = getBreakpointsActive;
-			SetCallbacks();
 		}
 
-		private void SetCallbacks()
+		protected override void SetCallbacks()
 		{
 			// rng callbacks mostly just set two things, the roll and the chance.
 			// for simplicity all RNG values have both of these and if they do not use one it is set to 0
@@ -102,72 +180,6 @@ namespace Gen2TASTool
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("CheckAPressOW"), "ROM");
 
 			CallbacksSet = true;
-		}
-
-		private void RemoveCallbacks()
-		{
-			foreach (var cb in CallbackList)
-			{
-				APIs.MemoryEvents.RemoveMemoryCallback(cb);
-			}
-
-			CallbacksSet = false;
-		}
-
-		public void UpdateCallbacks(CheckedListBox checklist, bool disableCallbacks)
-		{
-			for (int i = 0; i < checklist.Items.Count; i++)
-			{
-				BreakpointActive[checklist.Items[i].ToString()] = checklist.GetItemChecked(i);
-			}
-			if (disableCallbacks && CallbacksSet)
-			{
-				RemoveCallbacks();
-			}
-			else if (!disableCallbacks && !CallbacksSet)
-			{
-				SetCallbacks();
-			}
-		}
-
-		private void MaybePause(string breakpoint)
-		{
-			if (BreakpointsActive() && BreakpointActive[breakpoint])
-			{
-				APIs.EmuClient.Pause();
-			}
-		}
-
-		private int GetReg(string name) => (int)(APIs.Emulation.GetRegister(name) ?? throw new NullReferenceException());
-
-		private int DereferenceHL()
-		{
-			var hl = GetReg("H") * 0x100 | GetReg("L");
-			return (int)APIs.Memory.ReadU8(hl, "System Bus");
-		}
-
-		private int GetRandomU16()
-		{
-			APIs.Memory.SetBigEndian();
-			return (ushort)APIs.Memory.ReadU16(GBSym.GetSYMDomAddr("hRandomAdd"), GBSym.GetSYMDomain("hRandomAdd"));
-		}
-
-		private MemoryCallbackDelegate MakeRollChanceCallback(RollChance rng, Func<int> getRoll, Func<int> getChance, string breakpoint)
-		{
-			return (uint address, uint value, uint flags) =>
-			{
-				rng.Roll = getRoll();
-				rng.Chance = getChance();
-				MaybePause(breakpoint);
-			};
-		}
-
-		private MemoryCallbackDelegate MakeGenericCallback(string breakpoint)
-		{
-			return (uint address, uint value, uint flags) =>
-			{
-				MaybePause(breakpoint);
-			};
 		}
 	}
 }

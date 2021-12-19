@@ -69,10 +69,13 @@ namespace Gen2TASTool
 		private readonly Dictionary<string, SYMEntry> SymEntries = new();
 		private Gen2TASToolForm.MessageCallback MessageCb { get; }
 
-		public SYM(Gen2Game game, Gen2TASToolForm.MessageCallback messageCb)
+		private readonly string Which;
+
+		public SYM(Gen2Game game, Gen2TASToolForm.MessageCallback messageCb, string which)
 		{
-			MessageCb = messageCb;
 			Game = game;
+			MessageCb = messageCb;
+			Which = which;
 
 			string file = game switch
 			{
@@ -125,7 +128,7 @@ namespace Gen2TASTool
 		{
 			try
 			{
-				return SymEntries[symbol].Domain;
+				return Which + SymEntries[symbol].Domain;
 			}
 			catch (Exception ex)
 			{

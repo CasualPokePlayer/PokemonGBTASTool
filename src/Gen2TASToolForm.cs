@@ -22,8 +22,8 @@ namespace Gen2TASTool
 		private SYM? SYM { get; set; }
 		private SYM GBSym => SYM ?? throw new NullReferenceException();
 
-		private Callbacks? Callbacks { get; set; }
-		private Callbacks CBs => Callbacks ?? throw new NullReferenceException();
+		private Gen2Callbacks? Gen2Callbacks { get; set; }
+		private Gen2Callbacks CBs => Gen2Callbacks ?? throw new NullReferenceException();
 
 		private readonly PokemonData PkmnData;
 
@@ -34,7 +34,7 @@ namespace Gen2TASTool
 		public Gen2TASToolForm()
 		{
 			InitializeComponent();
-			checkedListBox1.Items.AddRange(Callbacks.BreakpointList);
+			checkedListBox1.Items.AddRange(Gen2Callbacks.BreakpointList);
 			checkedListBox1.CheckOnClick = true;
 			PkmnData = new PokemonData(ShowMessage);
 			Icon = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Gen2TASTool.icon.ico"));
@@ -56,8 +56,8 @@ namespace Gen2TASTool
 				"F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133" => SYM.Gen2Game.Crystal,
 				_ => throw new Exception()
 			};
-			SYM = new SYM(gen2Game, ShowMessage);
-			Callbacks = new Callbacks(APIs, SYM, () => checkBox1.Checked);
+			SYM = new SYM(gen2Game, ShowMessage, "");
+			Gen2Callbacks = new Gen2Callbacks(APIs, SYM, () => checkBox1.Checked, "");
 			APIs.EmuClient.SetGameExtraPadding(0, 0, 105, 0);
 		}
 
