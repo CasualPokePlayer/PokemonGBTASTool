@@ -10,11 +10,29 @@ namespace PokemonGBTASTool
 {
 	public abstract class Callbacks
 	{
-		public struct RollChance
+		public class RollChance
 		{
-			public int Roll { get; set; }
-			public int Chance { get; set; }
+			public int Roll { get; private set; }
+
+			public int Chance { get; private set; }
+
+			private Func<int> GetRoll { get; }
+			private Func<int> GetChance { get; }
+
+			public RollChance(Func<int> getRoll, Func<int> getChance)
+			{
+				GetRoll = getRoll;
+				GetChance = getChance;
+			}
+
+			public void SetRollChance()
+			{
+				Roll = GetRoll();
+				Chance = GetChance();
+			}
 		}
+
+		protected delegate void RollChanceDelegate(Func<int> getRollOrChance);
 
 		protected ApiContainer APIs { get; }
 		protected SYM GBSym { get; }
@@ -94,12 +112,11 @@ namespace PokemonGBTASTool
 			return (ushort)APIs.Memory.ReadU16(GBSym.GetSYMDomAddr("hRandomAdd"), GBSym.GetSYMDomain("hRandomAdd"));
 		}
 
-		protected MemoryCallbackDelegate MakeRollChanceCallback(RollChance rng, Func<int> getRoll, Func<int> getChance, string breakpoint)
+		protected MemoryCallbackDelegate MakeRollChanceCallback(Action setRollChance, string breakpoint)
 		{
 			return (uint address, uint value, uint flags) =>
 			{
-				rng.Roll = getRoll();
-				rng.Chance = getChance();
+				setRollChance();
 				MaybePause(breakpoint);
 			};
 		}
@@ -115,7 +132,7 @@ namespace PokemonGBTASTool
 
 	public sealed class Gen1Callbacks : Callbacks
 	{
-		public static readonly string[] BreakpointList =
+		public static string[] BreakpointList { get; } =
 		{
 				"Accuracy Roll",
 				"Damage Roll",
@@ -129,17 +146,24 @@ namespace PokemonGBTASTool
 				"Joypad Overworld",
 		};
 
-		public RollChance AccuracyRng { get; } = new();
-		public RollChance DamageRng { get; } = new();
-		public RollChance EffectRng { get; } = new();
-		public RollChance CritRng { get; } = new();
-		public RollChance MetronomeRng { get; } = new();
-		public RollChance Catch1Rng { get; } = new();
-		public RollChance Catch2Rng { get; } = new();
+		public RollChance AccuracyRng { get; }
+		public RollChance DamageRng { get; }
+		public RollChance EffectRng { get; }
+		public RollChance CritRng { get; }
+		public RollChance MetronomeRng { get; }
+		public RollChance Catch1Rng { get; }
+		public RollChance Catch2Rng { get; }
 
 		public Gen1Callbacks(ApiContainer apis, SYM sym, Func<bool> getBreakpointsActive, string which)
 			: base(apis, sym, getBreakpointsActive, which, BreakpointList)
 		{
+			AccuracyRng = new RollChance(() => GetReg("A"), () => GetReg("B"));
+			DamageRng = new RollChance(() => GetReg("A"), () => 0);
+			EffectRng = new RollChance(() => 0, () => 0); // todo
+			CritRng = new RollChance(() => GetReg("A"), () => GetReg("B"));
+			MetronomeRng = new RollChance(() => 0, () => 0); // todo
+			Catch1Rng = new RollChance(() => GetReg("B"), () => GetReg("A"));
+			Catch2Rng = new RollChance(() => GetReg("B"), () => GetReg("A"));
 		}
 
 		protected override void SetCallbacks()
@@ -150,25 +174,25 @@ namespace PokemonGBTASTool
 			// for simplicity all RNG values have both of these and if they do not use one it is set to 0
 
 			// accuracy roll
-			CallbackList.Add(MakeRollChanceCallback(AccuracyRng, () => GetReg("A"), () => GetReg("B"), "Accuracy Roll"));
+			CallbackList.Add(MakeRollChanceCallback(() => AccuracyRng.SetRollChance(), "Accuracy Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("MoveHitTest.doAccuracyCheck") + 3, romScope);
 			// damage roll
-			CallbackList.Add(MakeRollChanceCallback(DamageRng, () => GetReg("A"), () => 0, "Damage Roll"));
+			CallbackList.Add(MakeRollChanceCallback(() => DamageRng.SetRollChance(), "Damage Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("RandomizeDamage.loop") + 8, romScope);
 			/*// effect roll
-			CallbackList.Add(MakeRollChanceCallback(EffectRng, () => GetReg("A"), () => DereferenceHL(), "Effect Roll"));
+			CallbackList.Add(MakeRollChanceCallback(EffectRng.SetRollChance, "Effect Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_EffectChance.got_move_chance") + 4, romScope);*/
 			// crit roll
-			CallbackList.Add(MakeRollChanceCallback(CritRng, () => GetReg("A"), () => GetReg("B"), "Crit Roll"));
+			CallbackList.Add(MakeRollChanceCallback(() => CritRng.SetRollChance(), "Crit Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("CriticalHitTest.SkipHighCritical") + 9, romScope);
 			/*// metronome roll
-			CallbackList.Add(MakeRollChanceCallback(MetronomeRng, () => GetReg("B"), () => 0, "Metronome Roll"));
+			CallbackList.Add(MakeRollChanceCallback(MetronomeRng.SetRollChance, "Metronome Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_Metronome.GetMove") + 26, romScope);*/
 			// catch roll 1
-			CallbackList.Add(MakeRollChanceCallback(Catch1Rng, () => GetReg("B"), () => GetReg("A"), "1st Catch Roll"));
+			CallbackList.Add(MakeRollChanceCallback(() => Catch1Rng.SetRollChance(), "1st Catch Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("ItemUseBall.skip3") + 4, romScope);
 			// catch roll 2
-			CallbackList.Add(MakeRollChanceCallback(Catch2Rng, () => GetReg("B"), () => GetReg("A"), "2nd Catch Roll"));
+			CallbackList.Add(MakeRollChanceCallback(() => Catch2Rng.SetRollChance(), "2nd Catch Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("ItemUseBall.skip3") + 18, romScope);
 
 			// non rng callbacks are typically only used for pausing, make a generic callback for them
@@ -186,7 +210,7 @@ namespace PokemonGBTASTool
 
 	public sealed class Gen2Callbacks : Callbacks
 	{
-		public static readonly string[] BreakpointList =
+		public static string[] BreakpointList { get; } =
 		{
 				"Accuracy Roll",
 				"Damage Roll",
@@ -203,17 +227,24 @@ namespace PokemonGBTASTool
 				//"Random"
 		};
 
-		public RollChance AccuracyRng { get; } = new();
-		public RollChance DamageRng { get; } = new();
-		public RollChance EffectRng { get; } = new();
-		public RollChance CritRng { get; } = new();
-		public RollChance MetronomeRng { get; } = new();
-		public RollChance CatchRng { get; } = new();
-		public RollChance PokerusRng { get; } = new();
+		public RollChance AccuracyRng { get; }
+		public RollChance DamageRng { get; }
+		public RollChance EffectRng { get; }
+		public RollChance CritRng { get; }
+		public RollChance MetronomeRng { get; }
+		public RollChance CatchRng { get; }
+		public RollChance PokerusRng { get; }
 
 		public Gen2Callbacks(ApiContainer apis, SYM sym, Func<bool> getBreakpointsActive, string which)
 			: base(apis, sym, getBreakpointsActive, which, BreakpointList)
 		{
+			AccuracyRng = new RollChance(() => GetReg("A"), () => GetReg("B"));
+			DamageRng = new RollChance(() => GetReg("A"), () => 0);
+			EffectRng = new RollChance(() => GetReg("A"), () => DereferenceHL());
+			CritRng = new RollChance(() => GetReg("A"), () => DereferenceHL());
+			MetronomeRng = new RollChance(() => GetReg("B"), () => 0);
+			CatchRng = new RollChance(() => GetReg("A"), () => GetReg("B"));
+			PokerusRng = new RollChance(() => GetRandomU16(), () => 0);
 		}
 
 		protected override void SetCallbacks()
@@ -224,25 +255,25 @@ namespace PokemonGBTASTool
 			// for simplicity all RNG values have both of these and if they do not use one it is set to 0
 
 			// accuracy roll
-			CallbackList.Add(MakeRollChanceCallback(AccuracyRng, () => GetReg("A"), () => GetReg("B"), "Accuracy Roll"));
+			CallbackList.Add(MakeRollChanceCallback(() => AccuracyRng.SetRollChance(), "Accuracy Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_CheckHit.skip_brightpowder") + 8, romScope);
 			// damage roll
-			CallbackList.Add(MakeRollChanceCallback(DamageRng, () => GetReg("A"), () => 0, "Damage Roll"));
+			CallbackList.Add(MakeRollChanceCallback(() => DamageRng.SetRollChance(), "Damage Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_DamageVariation.loop") + 8, romScope);
 			// effect roll
-			CallbackList.Add(MakeRollChanceCallback(EffectRng, () => GetReg("A"), () => DereferenceHL(), "Effect Roll"));
+			CallbackList.Add(MakeRollChanceCallback(() => EffectRng.SetRollChance(), "Effect Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_EffectChance.got_move_chance") + 4, romScope);
 			// crit roll
-			CallbackList.Add(MakeRollChanceCallback(CritRng, () => GetReg("A"), () => DereferenceHL(), "Crit Roll"));
+			CallbackList.Add(MakeRollChanceCallback(() => CritRng.SetRollChance(), "Crit Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_Critical.Tally") + 9, romScope);
 			// metronome roll
-			CallbackList.Add(MakeRollChanceCallback(MetronomeRng, () => GetReg("B"), () => 0, "Metronome Roll"));
+			CallbackList.Add(MakeRollChanceCallback(() => MetronomeRng.SetRollChance(), "Metronome Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("BattleCommand_Metronome.GetMove") + 26, romScope);
 			// catch roll
-			CallbackList.Add(MakeRollChanceCallback(CatchRng, () => GetReg("A"), () => GetReg("B"), "Catch Roll"));
+			CallbackList.Add(MakeRollChanceCallback(() => CatchRng.SetRollChance(), "Catch Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("PokeBallEffect.max_2") + 7, romScope);
 			// pokerus roll
-			CallbackList.Add(MakeRollChanceCallback(PokerusRng, () => GetRandomU16(), () => 0, "Pokerus Roll"));
+			CallbackList.Add(MakeRollChanceCallback(() => PokerusRng.SetRollChance(), "Pokerus Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("GivePokerusAndConvertBerries.loopMons") + 18, romScope);
 
 			// non rng callbacks are typically only used for pausing, make a generic callback for them

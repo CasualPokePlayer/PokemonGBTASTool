@@ -59,12 +59,12 @@ namespace PokemonGBTASTool
 				"F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133" => new CrystalSYM(ShowMessage, ""),
 				_ => throw new Exception()
 			};
-			Callbacks = GBSym.IsGen2
-				? new Gen2Callbacks(APIs, GBSym, () => checkBox1.Checked, "")
-				: new Gen1Callbacks(APIs, GBSym, () => checkBox1.Checked, "");
 			checkedListBox1.Items.Clear();
 			checkedListBox1.Items.AddRange(GBSym.IsGen2 ? Gen2Callbacks.BreakpointList : Gen1Callbacks.BreakpointList);
 			checkedListBox1.CheckOnClick = true;
+			Callbacks = GBSym.IsGen2
+				? new Gen2Callbacks(APIs, GBSym, () => checkBox1.Checked, "")
+				: new Gen1Callbacks(APIs, GBSym, () => checkBox1.Checked, "");
 			APIs.EmuClient.SetGameExtraPadding(0, 0, 105, 0);
 		}
 
@@ -101,6 +101,7 @@ namespace PokemonGBTASTool
 			}
 			else if (CBs is Gen1Callbacks gen1Cbs)
 			{
+				gen1Cbs.UpdateCallbacks(checkedListBox1, checkBox2.Checked);
 				APIs.Gui.Text(5, 5, $"Random Add: {CpuReadU8("hRandomAdd")}", Color.White, "bottomright");
 				APIs.Gui.Text(5, 35, $"DSUM: {GetDSUM()}", Color.White, "bottomright");
 				APIs.Gui.Text(5, 5, $"Crit Roll: {gen1Cbs.CritRng.Roll}", Color.White, "topright");

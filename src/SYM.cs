@@ -8,7 +8,7 @@ namespace PokemonGBTASTool
 {
 	public abstract class SYM
 	{
-		private static readonly uint[] bankSizes = new uint[16]
+		private static uint[] BankSizes { get; } = new uint[16]
 		{
 			/*ROM*/ 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000,
 			/*VRAM*/ 0x2000, 0x2000,
@@ -17,7 +17,7 @@ namespace PokemonGBTASTool
 			/*Echo-OAM-HRAM*/ 0, 0,
 		};
 
-		private static readonly uint[] domOffsets = new uint[16]
+		private static uint[] DomOffsets { get; } = new uint[16]
 		{
 			/*ROM*/ 0, 0, 0, 0, 0x4000, 0x4000, 0x4000, 0x4000,
 			/*VRAM*/ 0x8000, 0x8000,
@@ -26,7 +26,7 @@ namespace PokemonGBTASTool
 			/*Echo-OAM-HRAM*/ 0, 0xFF80,
 		};
 
-		private static readonly string[] domains = new string[16]
+		private static string[] Domains { get; } = new string[16]
 		{
 			/*ROM*/ "ROM", "ROM", "ROM", "ROM", "ROM", "ROM", "ROM", "ROM",
 			/*VRAM*/ "VRAM", "VRAM",
@@ -47,12 +47,12 @@ namespace PokemonGBTASTool
 				Bank = uint.Parse(line.Substring(0, 2), NumberStyles.HexNumber);
 				SystemBusAddress = uint.Parse(line.Substring(3, 4), NumberStyles.HexNumber);
 				var index = SystemBusAddress >> 12;
-				Domain = domains[index];
-				DomainAddress = SystemBusAddress + Bank * bankSizes[index] - domOffsets[index];
+				Domain = Domains[index];
+				DomainAddress = SystemBusAddress + Bank * BankSizes[index] - DomOffsets[index];
 			}
 		}
 
-		private readonly Dictionary<string, SYMEntry> SymEntries = new();
+		private Dictionary<string, SYMEntry> SymEntries { get; } = new();
 		private PokemonGBTASToolForm.MessageCallback MessageCb { get; }
 
 		private string Which { get; }
