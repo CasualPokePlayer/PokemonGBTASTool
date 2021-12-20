@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 
 namespace PokemonGBTASTool
@@ -65,7 +66,7 @@ namespace PokemonGBTASTool
 			Which = which;
 			IsGen2 = isGen2;
 
-			var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(sym));
+			var reader = new StreamReader(new GZipStream(Assembly.GetExecutingAssembly().GetManifestResourceStream(sym), CompressionMode.Decompress));
 			reader.ReadLine(); // skip first line
 			while (true)
 			{
@@ -134,7 +135,7 @@ namespace PokemonGBTASTool
 	public sealed class RedSYM : SYM
 	{
 		public RedSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
-			: base("PokemonGBTASTool.res.pokered.sym", messageCb, which, false)
+			: base("PokemonGBTASTool.res.pokered.sym.gz", messageCb, which, false)
 		{
 		}
 	}
@@ -142,7 +143,7 @@ namespace PokemonGBTASTool
 	public sealed class BlueSYM : SYM
 	{
 		public BlueSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
-			: base("PokemonGBTASTool.res.pokeblue.sym", messageCb, which, false)
+			: base("PokemonGBTASTool.res.pokeblue.sym.gz", messageCb, which, false)
 		{
 		}
 	}
@@ -150,7 +151,7 @@ namespace PokemonGBTASTool
 	public sealed class YellowSYM : SYM
 	{
 		public YellowSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
-			: base("PokemonGBTASTool.res.pokeyellow.sym", messageCb, which, false)
+			: base("PokemonGBTASTool.res.pokeyellow.sym.gz", messageCb, which, false)
 		{
 		}
 	}
@@ -158,7 +159,7 @@ namespace PokemonGBTASTool
 	public sealed class GoldSYM : SYM
 	{
 		public GoldSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
-			: base("PokemonGBTASTool.res.pokegold.sym", messageCb, which, true)
+			: base("PokemonGBTASTool.res.pokegold.sym.gz", messageCb, which, true)
 		{
 		}
 	}
@@ -166,7 +167,7 @@ namespace PokemonGBTASTool
 	public sealed class SilverSYM : SYM
 	{
 		public SilverSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
-			: base("PokemonGBTASTool.res.pokesilver.sym", messageCb, which, true)
+			: base("PokemonGBTASTool.res.pokesilver.sym.gz", messageCb, which, true)
 		{
 		}
 	}
@@ -174,7 +175,7 @@ namespace PokemonGBTASTool
 	public sealed class CrystalSYM : SYM
 	{
 		public CrystalSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
-			: base("PokemonGBTASTool.res.pokecrystal.sym", messageCb, which, true)
+			: base("PokemonGBTASTool.res.pokecrystal.sym.gz", messageCb, which, true)
 		{
 		}
 	}
