@@ -9,23 +9,23 @@ using BizHawk.Client.EmuHawk;
 
 namespace PokemonGBTASTool
 {
-	[ExternalTool("Pokemon GB TAS Tool", Description = "A tool to help with TASing GB Pokemon games.")]
-	[ExternalToolApplicability.RomWhitelist(CoreSystem.GameBoy,
-	"EA9BCAE617FDF159B045185467AE58B2E4A48B9A", "D7037C83E1AE5B39BDE3C30787637BA1D4C48CE2", "CC7D03262EBFAF2F06772C1A480C7D9D5F4A38E1", // red, blue, yellow hashes
-	"D8B8A3600A465308C9953DFA04F0081C05BDCB94", "49B163F7E57702BC939D642A18F591DE55D92DAE", "F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133") // gold, silver, crystal hashes
-	]
+	[ExternalTool("Pokemon Link GB TAS Tool", Description = "A tool to help with TASing Link GB Pokemon games.")]
+	[ExternalToolApplicability.SingleSystem(CoreSystem.GameBoyLink)]
 	[ExternalToolEmbeddedIcon("PokemonGBTASTool.res.icon.ico")]
 	public partial class PokemonGBTASToolForm : ToolFormBase, IExternalToolForm
 	{
 		public ApiContainer? ApiContainer { get; set; }
 		private ApiContainer APIs => ApiContainer ?? throw new NullReferenceException();
 
-		private SYM? SYM { get; set; }
-		private SYM GBSym => SYM ?? throw new NullReferenceException();
+		private CrystalSYM CrystalSym { get; }
+		private SilverSYM SilverSym { get; }
+		private YellowSYM YellowSym { get; }
 
-		private Callbacks? Callbacks { get; set; }
+		private List<Callbacks> Callbacks { get; } = new(3);
 
-		private Callbacks CBs => Callbacks ?? throw new NullReferenceException();
+		private Gen2Callbacks CrystalCBs => Callbacks[0] as Gen2Callbacks ?? throw new NullReferenceException();
+		private Gen2Callbacks SilverCBs => Callbacks[1] as Gen2Callbacks ?? throw new NullReferenceException();
+		private Gen1Callbacks YellowCBs => Callbacks[2] as Gen1Callbacks ?? throw new NullReferenceException();
 
 		private PokemonData PkmnData { get; }
 
@@ -36,6 +36,9 @@ namespace PokemonGBTASTool
 		public PokemonGBTASToolForm()
 		{
 			InitializeComponent();
+			CrystalSym = new CrystalSYM(ShowMessage, "P1 ");
+			SilverSym = new SilverSYM(ShowMessage, "P2 ");
+			YellowSym = new YellowSYM(ShowMessage, "P3 ");
 			PkmnData = new PokemonData(ShowMessage);
 			Icon = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("PokemonGBTASTool.res.icon.ico"));
 			Closing += (sender, args) => APIs.EmuClient.SetGameExtraPadding(0, 0, 0, 0);
@@ -46,76 +49,99 @@ namespace PokemonGBTASTool
 		{
 			if (string.IsNullOrEmpty(APIs.GameInfo.GetBoardType()))
 			{
-				ShowMessage("Only Gambatte is supported with this tool");
+				ShowMessage("Only GambatteLink is supported with this tool");
 				Close();
 			}
-			SYM = APIs.GameInfo.GetGameInfo()?.Hash switch
-			{
-				"EA9BCAE617FDF159B045185467AE58B2E4A48B9A" => new RedSYM(ShowMessage, ""),
-				"D7037C83E1AE5B39BDE3C30787637BA1D4C48CE2" => new BlueSYM(ShowMessage, ""),
-				"CC7D03262EBFAF2F06772C1A480C7D9D5F4A38E1" => new YellowSYM(ShowMessage, ""),
-				"D8B8A3600A465308C9953DFA04F0081C05BDCB94" => new GoldSYM(ShowMessage, ""),
-				"49B163F7E57702BC939D642A18F591DE55D92DAE" => new SilverSYM(ShowMessage, ""),
-				"F4CD194BDEE0D04CA4EAC29E09B8E4E9D818C133" => new CrystalSYM(ShowMessage, ""),
-				_ => throw new Exception()
-			};
 			checkedListBox1.Items.Clear();
-			checkedListBox1.Items.AddRange(GBSym.IsGen2 ? Gen2Callbacks.BreakpointList : Gen1Callbacks.BreakpointList);
+			checkedListBox1.Items.AddRange(Gen2Callbacks.BreakpointList);
 			checkedListBox1.CheckOnClick = true;
-			Callbacks = GBSym.IsGen2
-				? new Gen2Callbacks(APIs, GBSym, () => checkBox1.Checked, "")
-				: new Gen1Callbacks(APIs, GBSym, () => checkBox1.Checked, "");
+			checkedListBox2.Items.Clear();
+			checkedListBox2.Items.AddRange(Gen2Callbacks.BreakpointList);
+			checkedListBox2.CheckOnClick = true;
+			checkedListBox3.Items.Clear();
+			checkedListBox3.Items.AddRange(Gen1Callbacks.BreakpointList);
+			checkedListBox3.CheckOnClick = true;
+			comboBox1.SelectedIndex = 0;
+			Callbacks.Clear();
+			Callbacks.Add(new Gen2Callbacks(APIs, CrystalSym, () => checkBox1.Checked && comboBox1.SelectedIndex is 0, "P1 "));
+			Callbacks.Add(new Gen2Callbacks(APIs, SilverSym, () => checkBox1.Checked && comboBox1.SelectedIndex is 1, "P2 "));
+			Callbacks.Add(new Gen1Callbacks(APIs, YellowSym, () => checkBox1.Checked && comboBox1.SelectedIndex is 2, "P3 "));
 			APIs.EmuClient.SetGameExtraPadding(0, 0, 105, 0);
 		}
 
-		private byte CpuReadU8(string symbol) => (byte)APIs.Memory.ReadU8(GBSym.GetSYMDomAddr(symbol), GBSym.GetSYMDomain(symbol));
+		private byte CpuReadU8(string symbol, SYM GBSym) => (byte)APIs.Memory.ReadU8(GBSym.GetSYMDomAddr(symbol), GBSym.GetSYMDomain(symbol));
 
-		private ushort CpuReadBigU16(string symbol)
+		private ushort CpuReadBigU16(string symbol, SYM GBSym)
 		{
 			APIs.Memory.SetBigEndian();
 			return (ushort)APIs.Memory.ReadU16(GBSym.GetSYMDomAddr(symbol), GBSym.GetSYMDomain(symbol));
 		}
 
-		private string GetEnemyMonName() => PkmnData.GetPokemonSpeciesName(CpuReadU8("wEnemyMonSpecies"), GBSym.IsGen2);
-		private string GetEnemyMonMove() => PkmnData.GetPokemonMoveName(CpuReadU8(GBSym.IsGen2 ? "wCurEnemyMove" : "wEnemySelectedMove"));
-		private byte GetDSUM() => (byte)((CpuReadU8("hRandomAdd") + CpuReadU8("hRandomSub")) & 0xFF);
+		private string GetEnemyMonName(SYM GBSym) => PkmnData.GetPokemonSpeciesName(CpuReadU8("wEnemyMonSpecies", GBSym), GBSym.IsGen2);
+		private string GetEnemyMonMove(SYM GBSym) => PkmnData.GetPokemonMoveName(CpuReadU8(GBSym.IsGen2 ? "wCurEnemyMove" : "wEnemySelectedMove", GBSym));
+		private byte GetDSUM(SYM GBSym) => (byte)((CpuReadU8("hRandomAdd", GBSym) + CpuReadU8("hRandomSub", GBSym)) & 0xFF);
 
 		public override void UpdateValues(ToolFormUpdateType type)
 		{
 			if (type is ToolFormUpdateType.PreFrame or ToolFormUpdateType.FastPreFrame)
-            {
-				if (CBs is Gen2Callbacks gen2Cbs)
+			{
+				CrystalCBs.UpdateCallbacks(checkedListBox1, checkBox2.Checked || comboBox1.SelectedIndex is not 0);
+				SilverCBs.UpdateCallbacks(checkedListBox2, checkBox2.Checked || comboBox1.SelectedIndex is not 1);
+				YellowCBs.UpdateCallbacks(checkedListBox3, checkBox2.Checked || comboBox1.SelectedIndex is not 2);
+				switch (comboBox1.SelectedIndex)
 				{
-					gen2Cbs.UpdateCallbacks(checkedListBox1, checkBox2.Checked);
-					APIs.Gui.Text(5, 5, $"{GetEnemyMonName()}'s Max HP: {CpuReadBigU16("wEnemyMonMaxHP")}", Color.White, "topright");
-					APIs.Gui.Text(5, 25, $"{GetEnemyMonName()}'s Cur HP: {CpuReadBigU16("wEnemyMonHP")}", Color.White, "topright");
-					APIs.Gui.Text(5, 55, $"{GetEnemyMonName()}'s Move: {GetEnemyMonMove()}", Color.White, "topright");
-					APIs.Gui.Text(5, 85, $"Crit Roll: {gen2Cbs.CritRng.Roll}", Color.White, "topright");
-					APIs.Gui.Text(5, 105, $"Crit Chance: {gen2Cbs.CritRng.Chance}", Color.White, "topright");
-					APIs.Gui.Text(5, 135, $"Damage Roll: {gen2Cbs.DamageRng.Roll}", Color.White, "topright");
-					APIs.Gui.Text(5, 165, $"Accuracy Roll: {gen2Cbs.AccuracyRng.Roll}", Color.White, "topright");
-					APIs.Gui.Text(5, 185, $"Move Accuracy: {gen2Cbs.AccuracyRng.Chance}", Color.White, "topright");
-					APIs.Gui.Text(5, 215, $"Effect Roll: {gen2Cbs.EffectRng.Roll}", Color.White, "topright");
-					APIs.Gui.Text(5, 235, $"Effect Chance: {gen2Cbs.EffectRng.Chance}", Color.White, "topright");
-					APIs.Gui.Text(5, 265, $"Catch Roll: {gen2Cbs.CatchRng.Roll}", Color.White, "topright");
-					APIs.Gui.Text(5, 285, $"Catch Chance: {gen2Cbs.CatchRng.Chance}", Color.White, "topright");
-					APIs.Gui.Text(5, 315, $"Random Sub: {CpuReadU8("hRandomSub")}", Color.White, "topright");
-				}
-				else if (CBs is Gen1Callbacks gen1Cbs)
-				{
-					gen1Cbs.UpdateCallbacks(checkedListBox1, checkBox2.Checked);
-					APIs.Gui.Text(5, 5, $"Random Add: {CpuReadU8("hRandomAdd")}", Color.White, "bottomright");
-					APIs.Gui.Text(5, 35, $"DSUM: {GetDSUM()}", Color.White, "bottomright");
-					APIs.Gui.Text(5, 5, $"Crit Roll: {gen1Cbs.CritRng.Roll}", Color.White, "topright");
-					APIs.Gui.Text(5, 25, $"Crit Chance: {gen1Cbs.CritRng.Chance}", Color.White, "topright");
-					APIs.Gui.Text(5, 55, $"Damage Roll: {gen1Cbs.DamageRng.Roll}", Color.White, "topright");
-					APIs.Gui.Text(5, 85, $"Accuracy Roll: {gen1Cbs.AccuracyRng.Roll}", Color.White, "topright");
-					APIs.Gui.Text(5, 105, $"Move Accuracy: {gen1Cbs.AccuracyRng.Chance}", Color.White, "topright");
-					APIs.Gui.Text(5, 135, $"Enemy Move: {GetEnemyMonMove()}", Color.White, "topright");
-					APIs.Gui.Text(5, 165, $"1st Catch Roll: {gen1Cbs.Catch1Rng.Roll}", Color.White, "topright");
-					APIs.Gui.Text(5, 185, $"1st Catch Chance: {gen1Cbs.Catch1Rng.Chance}", Color.White, "topright");
-					APIs.Gui.Text(5, 215, $"2nd Catch Roll: {gen1Cbs.Catch2Rng.Roll}", Color.White, "topright");
-					APIs.Gui.Text(5, 235, $"2nd Catch Chance: {gen1Cbs.Catch2Rng.Chance}", Color.White, "topright");
+					case 0:
+						{
+							APIs.Gui.Text(5, 5, $"{GetEnemyMonName(CrystalSym)}'s Max HP: {CpuReadBigU16("wEnemyMonMaxHP", CrystalSym)}", Color.White, "topright");
+							APIs.Gui.Text(5, 25, $"{GetEnemyMonName(CrystalSym)}'s Cur HP: {CpuReadBigU16("wEnemyMonHP", CrystalSym)}", Color.White, "topright");
+							APIs.Gui.Text(5, 55, $"{GetEnemyMonName(CrystalSym)}'s Move: {GetEnemyMonMove(CrystalSym)}", Color.White, "topright");
+							APIs.Gui.Text(5, 85, $"Crit Roll: {CrystalCBs.CritRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 105, $"Crit Chance: {CrystalCBs.CritRng.Chance}", Color.White, "topright");
+							APIs.Gui.Text(5, 135, $"Damage Roll: {CrystalCBs.DamageRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 165, $"Accuracy Roll: {CrystalCBs.AccuracyRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 185, $"Move Accuracy: {CrystalCBs.AccuracyRng.Chance}", Color.White, "topright");
+							APIs.Gui.Text(5, 215, $"Effect Roll: {CrystalCBs.EffectRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 235, $"Effect Chance: {CrystalCBs.EffectRng.Chance}", Color.White, "topright");
+							APIs.Gui.Text(5, 265, $"Catch Roll: {CrystalCBs.CatchRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 285, $"Catch Chance: {CrystalCBs.CatchRng.Chance}", Color.White, "topright");
+							APIs.Gui.Text(5, 315, $"Random Sub: {CpuReadU8("hRandomSub", CrystalSym)}", Color.White, "topright");
+							break;
+						}
+					case 1:
+						{
+							APIs.Gui.Text(5, 5, $"{GetEnemyMonName(SilverSym)}'s Max HP: {CpuReadBigU16("wEnemyMonMaxHP", SilverSym)}", Color.White, "topright");
+							APIs.Gui.Text(5, 25, $"{GetEnemyMonName(SilverSym)}'s Cur HP: {CpuReadBigU16("wEnemyMonHP", SilverSym)}", Color.White, "topright");
+							APIs.Gui.Text(5, 55, $"{GetEnemyMonName(SilverSym)}'s Move: {GetEnemyMonMove(SilverSym)}", Color.White, "topright");
+							APIs.Gui.Text(5, 85, $"Crit Roll: {SilverCBs.CritRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 105, $"Crit Chance: {SilverCBs.CritRng.Chance}", Color.White, "topright");
+							APIs.Gui.Text(5, 135, $"Damage Roll: {SilverCBs.DamageRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 165, $"Accuracy Roll: {SilverCBs.AccuracyRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 185, $"Move Accuracy: {SilverCBs.AccuracyRng.Chance}", Color.White, "topright");
+							APIs.Gui.Text(5, 215, $"Effect Roll: {SilverCBs.EffectRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 235, $"Effect Chance: {SilverCBs.EffectRng.Chance}", Color.White, "topright");
+							APIs.Gui.Text(5, 265, $"Catch Roll: {SilverCBs.CatchRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 285, $"Catch Chance: {SilverCBs.CatchRng.Chance}", Color.White, "topright");
+							APIs.Gui.Text(5, 315, $"Random Sub: {CpuReadU8("hRandomSub", SilverSym)}", Color.White, "topright");
+							break;
+						}
+					case 2:
+						{
+							APIs.Gui.Text(5, 5, $"Random Add: {CpuReadU8("hRandomAdd", YellowSym)}", Color.White, "bottomright");
+							APIs.Gui.Text(5, 35, $"DSUM: {GetDSUM(YellowSym)}", Color.White, "bottomright");
+							APIs.Gui.Text(5, 5, $"Crit Roll: {YellowCBs.CritRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 25, $"Crit Chance: {YellowCBs.CritRng.Chance}", Color.White, "topright");
+							APIs.Gui.Text(5, 55, $"Damage Roll: {YellowCBs.DamageRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 85, $"Accuracy Roll: {YellowCBs.AccuracyRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 105, $"Move Accuracy: {YellowCBs.AccuracyRng.Chance}", Color.White, "topright");
+							APIs.Gui.Text(5, 135, $"Enemy Move: {GetEnemyMonMove(YellowSym)}", Color.White, "topright");
+							APIs.Gui.Text(5, 165, $"1st Catch Roll: {YellowCBs.Catch1Rng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 185, $"1st Catch Chance: {YellowCBs.Catch1Rng.Chance}", Color.White, "topright");
+							APIs.Gui.Text(5, 215, $"2nd Catch Roll: {YellowCBs.Catch2Rng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 235, $"2nd Catch Chance: {YellowCBs.Catch2Rng.Chance}", Color.White, "topright");
+							break;
+						}
+					default:
+						throw new Exception();
 				}
 			}
 		}
