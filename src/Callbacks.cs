@@ -32,8 +32,6 @@ namespace PokemonGBTASTool
 			}
 		}
 
-		protected delegate void RollChanceDelegate(Func<int> getRollOrChance);
-
 		protected ApiContainer APIs { get; }
 		protected SYM GBSym { get; }
 		protected string Which { get; }
