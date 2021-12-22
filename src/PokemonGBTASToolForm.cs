@@ -82,38 +82,41 @@ namespace PokemonGBTASTool
 
 		public override void UpdateValues(ToolFormUpdateType type)
 		{
-			if (CBs is Gen2Callbacks gen2Cbs)
-			{
-				gen2Cbs.UpdateCallbacks(checkedListBox1, checkBox2.Checked);
-				APIs.Gui.Text(5, 5, $"{GetEnemyMonName()}'s Max HP: {CpuReadBigU16("wEnemyMonMaxHP")}", Color.White, "topright");
-				APIs.Gui.Text(5, 25, $"{GetEnemyMonName()}'s Cur HP: {CpuReadBigU16("wEnemyMonHP")}", Color.White, "topright");
-				APIs.Gui.Text(5, 55, $"{GetEnemyMonName()}'s Move: {GetEnemyMonMove()}", Color.White, "topright");
-				APIs.Gui.Text(5, 85, $"Crit Roll: {gen2Cbs.CritRng.Roll}", Color.White, "topright");
-				APIs.Gui.Text(5, 105, $"Crit Chance: {gen2Cbs.CritRng.Chance}", Color.White, "topright");
-				APIs.Gui.Text(5, 135, $"Damage Roll: {gen2Cbs.DamageRng.Roll}", Color.White, "topright");
-				APIs.Gui.Text(5, 165, $"Accuracy Roll: {gen2Cbs.AccuracyRng.Roll}", Color.White, "topright");
-				APIs.Gui.Text(5, 185, $"Move Accuracy: {gen2Cbs.AccuracyRng.Chance}", Color.White, "topright");
-				APIs.Gui.Text(5, 215, $"Effect Roll: {gen2Cbs.EffectRng.Roll}", Color.White, "topright");
-				APIs.Gui.Text(5, 235, $"Effect Chance: {gen2Cbs.EffectRng.Chance}", Color.White, "topright");
-				APIs.Gui.Text(5, 265, $"Catch Roll: {gen2Cbs.CatchRng.Roll}", Color.White, "topright");
-				APIs.Gui.Text(5, 285, $"Catch Chance: {gen2Cbs.CatchRng.Chance}", Color.White, "topright");
-				APIs.Gui.Text(5, 315, $"Random Sub: {CpuReadU8("hRandomSub")}", Color.White, "topright");
-			}
-			else if (CBs is Gen1Callbacks gen1Cbs)
-			{
-				gen1Cbs.UpdateCallbacks(checkedListBox1, checkBox2.Checked);
-				APIs.Gui.Text(5, 5, $"Random Add: {CpuReadU8("hRandomAdd")}", Color.White, "bottomright");
-				APIs.Gui.Text(5, 35, $"DSUM: {GetDSUM()}", Color.White, "bottomright");
-				APIs.Gui.Text(5, 5, $"Crit Roll: {gen1Cbs.CritRng.Roll}", Color.White, "topright");
-				APIs.Gui.Text(5, 25, $"Crit Chance: {gen1Cbs.CritRng.Chance}", Color.White, "topright");
-				APIs.Gui.Text(5, 55, $"Damage Roll: {gen1Cbs.DamageRng.Roll}", Color.White, "topright");
-				APIs.Gui.Text(5, 85, $"Accuracy Roll: {gen1Cbs.AccuracyRng.Roll}", Color.White, "topright");
-				APIs.Gui.Text(5, 105, $"Move Accuracy: {gen1Cbs.AccuracyRng.Chance}", Color.White, "topright");
-				APIs.Gui.Text(5, 135, $"Enemy Move: {GetEnemyMonMove()}", Color.White, "topright");
-				APIs.Gui.Text(5, 165, $"1st Catch Roll: {gen1Cbs.Catch1Rng.Roll}", Color.White, "topright");
-				APIs.Gui.Text(5, 185, $"1st Catch Chance: {gen1Cbs.Catch1Rng.Chance}", Color.White, "topright");
-				APIs.Gui.Text(5, 215, $"2nd Catch Roll: {gen1Cbs.Catch2Rng.Roll}", Color.White, "topright");
-				APIs.Gui.Text(5, 235, $"2nd Catch Chance: {gen1Cbs.Catch2Rng.Chance}", Color.White, "topright");
+			if (type is ToolFormUpdateType.PreFrame or ToolFormUpdateType.FastPreFrame)
+            {
+				if (CBs is Gen2Callbacks gen2Cbs)
+				{
+					gen2Cbs.UpdateCallbacks(checkedListBox1, checkBox2.Checked);
+					APIs.Gui.Text(5, 5, $"{GetEnemyMonName()}'s Max HP: {CpuReadBigU16("wEnemyMonMaxHP")}", Color.White, "topright");
+					APIs.Gui.Text(5, 25, $"{GetEnemyMonName()}'s Cur HP: {CpuReadBigU16("wEnemyMonHP")}", Color.White, "topright");
+					APIs.Gui.Text(5, 55, $"{GetEnemyMonName()}'s Move: {GetEnemyMonMove()}", Color.White, "topright");
+					APIs.Gui.Text(5, 85, $"Crit Roll: {gen2Cbs.CritRng.Roll}", Color.White, "topright");
+					APIs.Gui.Text(5, 105, $"Crit Chance: {gen2Cbs.CritRng.Chance}", Color.White, "topright");
+					APIs.Gui.Text(5, 135, $"Damage Roll: {gen2Cbs.DamageRng.Roll}", Color.White, "topright");
+					APIs.Gui.Text(5, 165, $"Accuracy Roll: {gen2Cbs.AccuracyRng.Roll}", Color.White, "topright");
+					APIs.Gui.Text(5, 185, $"Move Accuracy: {gen2Cbs.AccuracyRng.Chance}", Color.White, "topright");
+					APIs.Gui.Text(5, 215, $"Effect Roll: {gen2Cbs.EffectRng.Roll}", Color.White, "topright");
+					APIs.Gui.Text(5, 235, $"Effect Chance: {gen2Cbs.EffectRng.Chance}", Color.White, "topright");
+					APIs.Gui.Text(5, 265, $"Catch Roll: {gen2Cbs.CatchRng.Roll}", Color.White, "topright");
+					APIs.Gui.Text(5, 285, $"Catch Chance: {gen2Cbs.CatchRng.Chance}", Color.White, "topright");
+					APIs.Gui.Text(5, 315, $"Random Sub: {CpuReadU8("hRandomSub")}", Color.White, "topright");
+				}
+				else if (CBs is Gen1Callbacks gen1Cbs)
+				{
+					gen1Cbs.UpdateCallbacks(checkedListBox1, checkBox2.Checked);
+					APIs.Gui.Text(5, 5, $"Random Add: {CpuReadU8("hRandomAdd")}", Color.White, "bottomright");
+					APIs.Gui.Text(5, 35, $"DSUM: {GetDSUM()}", Color.White, "bottomright");
+					APIs.Gui.Text(5, 5, $"Crit Roll: {gen1Cbs.CritRng.Roll}", Color.White, "topright");
+					APIs.Gui.Text(5, 25, $"Crit Chance: {gen1Cbs.CritRng.Chance}", Color.White, "topright");
+					APIs.Gui.Text(5, 55, $"Damage Roll: {gen1Cbs.DamageRng.Roll}", Color.White, "topright");
+					APIs.Gui.Text(5, 85, $"Accuracy Roll: {gen1Cbs.AccuracyRng.Roll}", Color.White, "topright");
+					APIs.Gui.Text(5, 105, $"Move Accuracy: {gen1Cbs.AccuracyRng.Chance}", Color.White, "topright");
+					APIs.Gui.Text(5, 135, $"Enemy Move: {GetEnemyMonMove()}", Color.White, "topright");
+					APIs.Gui.Text(5, 165, $"1st Catch Roll: {gen1Cbs.Catch1Rng.Roll}", Color.White, "topright");
+					APIs.Gui.Text(5, 185, $"1st Catch Chance: {gen1Cbs.Catch1Rng.Chance}", Color.White, "topright");
+					APIs.Gui.Text(5, 215, $"2nd Catch Roll: {gen1Cbs.Catch2Rng.Roll}", Color.White, "topright");
+					APIs.Gui.Text(5, 235, $"2nd Catch Chance: {gen1Cbs.Catch2Rng.Chance}", Color.White, "topright");
+				}
 			}
 		}
 
