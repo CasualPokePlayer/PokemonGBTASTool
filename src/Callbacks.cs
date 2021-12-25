@@ -13,7 +13,6 @@ namespace PokemonGBTASTool
 		public class RollChance
 		{
 			public int Roll { get; private set; }
-
 			public int Chance { get; private set; }
 
 			private Func<int> GetRoll { get; }

@@ -90,9 +90,9 @@ namespace PokemonGBTASTool
 			"Mon 0xFC", "Mon 0xFD", "Mon 0xFE", "Mon 0xFF"
 		};
 
-		private PokemonGBTASToolForm.MessageCallback MessageCb { get; }
+		private Action<string> MessageCb { get; }
 
-		public PokemonData(PokemonGBTASToolForm.MessageCallback messageCb)
+		public PokemonData(Action<string> messageCb)
 		{
 			MessageCb = messageCb;
 		}

@@ -29,8 +29,6 @@ namespace PokemonGBTASTool
 
 		private PokemonData PkmnData { get; }
 
-		public delegate void MessageCallback(string message);
-
 		protected override string WindowTitleStatic => "Pokemon GB TAS Tool";
 
 		public PokemonGBTASToolForm()
