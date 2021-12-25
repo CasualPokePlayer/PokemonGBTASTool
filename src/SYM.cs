@@ -54,13 +54,13 @@ namespace PokemonGBTASTool
 		}
 
 		private Dictionary<string, SYMEntry> SymEntries { get; } = new();
-		private PokemonGBTASToolForm.MessageCallback MessageCb { get; }
+		private Action<string> MessageCb { get; }
 
 		private string Which { get; }
 
 		public bool IsGen2 { get; }
 
-		public SYM(string sym, PokemonGBTASToolForm.MessageCallback messageCb, string which, bool isGen2)
+		public SYM(string sym, Action<string> messageCb, string which, bool isGen2)
 		{
 			MessageCb = messageCb;
 			Which = which;
@@ -134,7 +134,7 @@ namespace PokemonGBTASTool
 
 	public sealed class RedSYM : SYM
 	{
-		public RedSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
+		public RedSYM(Action<string> messageCb, string which)
 			: base("PokemonGBTASTool.res.pokered.sym.gz", messageCb, which, false)
 		{
 		}
@@ -142,7 +142,7 @@ namespace PokemonGBTASTool
 
 	public sealed class BlueSYM : SYM
 	{
-		public BlueSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
+		public BlueSYM(Action<string> messageCb, string which)
 			: base("PokemonGBTASTool.res.pokeblue.sym.gz", messageCb, which, false)
 		{
 		}
@@ -150,7 +150,7 @@ namespace PokemonGBTASTool
 
 	public sealed class YellowSYM : SYM
 	{
-		public YellowSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
+		public YellowSYM(Action<string> messageCb, string which)
 			: base("PokemonGBTASTool.res.pokeyellow.sym.gz", messageCb, which, false)
 		{
 		}
@@ -158,7 +158,7 @@ namespace PokemonGBTASTool
 
 	public sealed class GoldSYM : SYM
 	{
-		public GoldSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
+		public GoldSYM(Action<string> messageCb, string which)
 			: base("PokemonGBTASTool.res.pokegold.sym.gz", messageCb, which, true)
 		{
 		}
@@ -166,7 +166,7 @@ namespace PokemonGBTASTool
 
 	public sealed class SilverSYM : SYM
 	{
-		public SilverSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
+		public SilverSYM(Action<string> messageCb, string which)
 			: base("PokemonGBTASTool.res.pokesilver.sym.gz", messageCb, which, true)
 		{
 		}
@@ -174,7 +174,7 @@ namespace PokemonGBTASTool
 
 	public sealed class CrystalSYM : SYM
 	{
-		public CrystalSYM(PokemonGBTASToolForm.MessageCallback messageCb, string which)
+		public CrystalSYM(Action<string> messageCb, string which)
 			: base("PokemonGBTASTool.res.pokecrystal.sym.gz", messageCb, which, true)
 		{
 		}
