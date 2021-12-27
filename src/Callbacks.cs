@@ -216,6 +216,7 @@ namespace PokemonGBTASTool
 				"Metronome Roll",
 				"Catch Roll",
 				"Pokerus Roll",
+				"Quick Claw Roll",
 				// add ai things todo
 				"Prompt Button",
 				"Wait Button",
@@ -231,6 +232,7 @@ namespace PokemonGBTASTool
 		public RollChance MetronomeRng { get; }
 		public RollChance CatchRng { get; }
 		public RollChance PokerusRng { get; }
+		public RollChance QuickClawRng { get; }
 
 		public Gen2Callbacks(ApiContainer apis, SYM sym, Func<bool> getBreakpointsActive, string which)
 			: base(apis, sym, getBreakpointsActive, which, BreakpointList)
@@ -242,6 +244,7 @@ namespace PokemonGBTASTool
 			MetronomeRng = new RollChance(() => GetReg("B"), () => 0);
 			CatchRng = new RollChance(() => GetReg("A"), () => GetReg("B"));
 			PokerusRng = new RollChance(() => GetRandomU16(), () => 0);
+			QuickClawRng = new RollChance(() => GetReg("A"), () => 0);
 		}
 
 		protected override void SetCallbacks()
@@ -272,6 +275,9 @@ namespace PokemonGBTASTool
 			// pokerus roll
 			CallbackList.Add(MakeRollChanceCallback(() => PokerusRng.SetRollChance(), "Pokerus Roll"));
 			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("GivePokerusAndConvertBerries.loopMons") + 18, romScope);
+			// quick claw roll
+			CallbackList.Add(MakeRollChanceCallback(() => QuickClawRng.SetRollChance(), "Quick Claw Roll"));
+			APIs.MemoryEvents.AddExecCallback(CallbackList.Last(), GBSym.GetSYMDomAddr("DetermineMoveOrder.equal_priority") + 30, romScope);
 
 			// non rng callbacks are typically only used for pausing, make a generic callback for them
 

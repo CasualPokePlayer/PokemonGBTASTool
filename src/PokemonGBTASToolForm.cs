@@ -102,7 +102,8 @@ namespace PokemonGBTASTool
 							APIs.Gui.Text(5, 235, $"Effect Chance: {CrystalCBs.EffectRng.Chance}", Color.White, "topright");
 							APIs.Gui.Text(5, 265, $"Catch Roll: {CrystalCBs.CatchRng.Roll}", Color.White, "topright");
 							APIs.Gui.Text(5, 285, $"Catch Chance: {CrystalCBs.CatchRng.Chance}", Color.White, "topright");
-							APIs.Gui.Text(5, 315, $"Random Sub: {CpuReadU8("hRandomSub", CrystalSym)}", Color.White, "topright");
+							APIs.Gui.Text(5, 315, $"Quick Claw Roll: {CrystalCBs.QuickClawRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 345, $"Random Sub: {CpuReadU8("hRandomSub", CrystalSym)}", Color.White, "topright");
 							break;
 						}
 					case 1:
@@ -119,7 +120,8 @@ namespace PokemonGBTASTool
 							APIs.Gui.Text(5, 235, $"Effect Chance: {SilverCBs.EffectRng.Chance}", Color.White, "topright");
 							APIs.Gui.Text(5, 265, $"Catch Roll: {SilverCBs.CatchRng.Roll}", Color.White, "topright");
 							APIs.Gui.Text(5, 285, $"Catch Chance: {SilverCBs.CatchRng.Chance}", Color.White, "topright");
-							APIs.Gui.Text(5, 315, $"Random Sub: {CpuReadU8("hRandomSub", SilverSym)}", Color.White, "topright");
+							APIs.Gui.Text(5, 315, $"Quick Claw Roll: {SilverCBs.QuickClawRng.Roll}", Color.White, "topright");
+							APIs.Gui.Text(5, 345, $"Random Sub: {CpuReadU8("hRandomSub", SilverSym)}", Color.White, "topright");
 							break;
 						}
 					case 2:
