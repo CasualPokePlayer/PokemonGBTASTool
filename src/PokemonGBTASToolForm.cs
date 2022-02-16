@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Reflection;
 
 using BizHawk.Client.Common;
 using BizHawk.Client.EmuHawk;
+using BizHawk.Emulation.Common;
 
 namespace PokemonGBTASTool
 {
@@ -158,6 +160,34 @@ namespace PokemonGBTASTool
 			catch (Exception ex)
 			{
 				ShowMessage($"Caught {ex.GetType().FullName} while trying to open link to source code");
+			}
+		}
+
+
+		[RequiredService]
+		private IEmulator? Emulator { get; set; }
+
+		private IEmulator Emu => Emulator ?? throw new NullReferenceException();
+
+		private (int, int) GetLinkerNums()
+		{
+			using var state = new MemoryStream();
+			Emu.AsStatable().SaveStateBinary(new BinaryWriter(state));
+			state.Seek(-4, SeekOrigin.End);
+			var shifted = state.ReadByte() != 0;
+			state.ReadByte(); // signal
+			var spaced = state.ReadByte() != 0;
+			if (spaced)
+			{
+				return (1, 3);
+			}
+			else if (shifted)
+			{
+				return (2, 3);
+			}
+			else
+			{
+				return (1, 2);
 			}
 		}
 	}
