@@ -6,20 +6,20 @@ namespace PokemonGBTASTool
 {
 	public abstract class PokemonGame : SYM
 	{
-		public ApiContainer APIs { get; }
+		private ApiContainer APIs { get; }
+		private PokemonData PkmnData { get; }
+
 		public Callbacks CBs { get; }
-		public PokemonData PkmnData { get; }
-		public bool IsGen2 { get; }
+		public bool IsGen2 => CBs is Gen2Callbacks;
 
 		public PokemonGame(ApiContainer apis, string sym, Action<string> messageCb, Func<bool> getBreakpointsActive, string which, bool gen2)
 			: base(sym, messageCb, which)
 		{
 			APIs = apis;
+			PkmnData = new PokemonData(messageCb);
 			CBs = gen2
 				? new Gen2Callbacks(apis, this, getBreakpointsActive)
 				: new Gen1Callbacks(apis, this, getBreakpointsActive);
-			PkmnData = new PokemonData(messageCb);
-			IsGen2 = gen2;
 		}
 
 		public byte ReadU8(string symbol) => (byte)APIs.Memory.ReadU8(GetSYMDomAddr(symbol), GetSYMDomain(symbol));
