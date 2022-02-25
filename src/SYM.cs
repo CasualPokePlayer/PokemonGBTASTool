@@ -56,15 +56,12 @@ namespace PokemonGBTASTool
 		private Dictionary<string, SYMEntry> SymEntries { get; } = new();
 		private Action<string> MessageCb { get; }
 
-		private string Which { get; }
+		public string Which { get; }
 
-		public bool IsGen2 { get; }
-
-		public SYM(string sym, Action<string> messageCb, string which, bool isGen2)
+		public SYM(string sym, Action<string> messageCb, string which)
 		{
 			MessageCb = messageCb;
 			Which = which;
-			IsGen2 = isGen2;
 
 			var reader = new StreamReader(new GZipStream(Assembly.GetExecutingAssembly().GetManifestResourceStream(sym), CompressionMode.Decompress));
 			reader.ReadLine(); // skip first line
@@ -129,54 +126,6 @@ namespace PokemonGBTASTool
 				MessageCb($"Caught {ex.GetType().FullName} while getting domain address for symbol {symbol}");
 				return 0;
 			}
-		}
-	}
-
-	public sealed class RedSYM : SYM
-	{
-		public RedSYM(Action<string> messageCb, string which)
-			: base("PokemonGBTASTool.res.pokered.sym.gz", messageCb, which, false)
-		{
-		}
-	}
-
-	public sealed class BlueSYM : SYM
-	{
-		public BlueSYM(Action<string> messageCb, string which)
-			: base("PokemonGBTASTool.res.pokeblue.sym.gz", messageCb, which, false)
-		{
-		}
-	}
-
-	public sealed class YellowSYM : SYM
-	{
-		public YellowSYM(Action<string> messageCb, string which)
-			: base("PokemonGBTASTool.res.pokeyellow.sym.gz", messageCb, which, false)
-		{
-		}
-	}
-
-	public sealed class GoldSYM : SYM
-	{
-		public GoldSYM(Action<string> messageCb, string which)
-			: base("PokemonGBTASTool.res.pokegold.sym.gz", messageCb, which, true)
-		{
-		}
-	}
-
-	public sealed class SilverSYM : SYM
-	{
-		public SilverSYM(Action<string> messageCb, string which)
-			: base("PokemonGBTASTool.res.pokesilver.sym.gz", messageCb, which, true)
-		{
-		}
-	}
-
-	public sealed class CrystalSYM : SYM
-	{
-		public CrystalSYM(Action<string> messageCb, string which)
-			: base("PokemonGBTASTool.res.pokecrystal.sym.gz", messageCb, which, true)
-		{
 		}
 	}
 }
