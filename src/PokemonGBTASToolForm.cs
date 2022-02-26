@@ -62,7 +62,7 @@ namespace PokemonGBTASTool
 		public override void UpdateValues(ToolFormUpdateType type)
 		{
 			if (type is ToolFormUpdateType.PreFrame or ToolFormUpdateType.FastPreFrame)
-            {
+			{
 				if (PkmnGame.CBs is Gen2Callbacks gen2Cbs)
 				{
 					gen2Cbs.UpdateCallbacks(checkedListBox1, checkBox2.Checked);
