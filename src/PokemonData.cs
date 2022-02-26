@@ -48,7 +48,7 @@ namespace PokemonGBTASTool
 			"Psych Up", "ExtremeSpeed", "AncientPower", "Shadow Ball", "Future Sight",
 			"Rock Smash", "Whirlpool", "Beat Up",
 
-			"Move 0xFC", "Move 0xFD", "Move 0xFE", "Move 0xFF"
+			"Move 0xFC", "Move 0xFD", "Move 0xFE", "Move 0xFF",
 		};
 
 		private static string[] Gen2PokemonSpecies { get; } = new string[256]
@@ -87,7 +87,7 @@ namespace PokemonGBTASTool
 			"Porygon2", "Stantler", "Smeargle", "Tyrogue", "Hitmontop", "Smoochum", "Elekid", "Magby", "Miltank",
 			"Blissey", "Raikou", "Entei", "Suicune", "Larvitar", "Pupitar", "Tyranitar", "Lugia", "Ho-Oh", "Celebi",
 
-			"Mon 0xFC", "Mon 0xFD", "Mon 0xFE", "Mon 0xFF"
+			"Mon 0xFC", "Mon 0xFD", "Mon 0xFE", "Mon 0xFF",
 		};
 
 		private Action<string> MessageCb { get; }

@@ -115,16 +115,16 @@ namespace PokemonGBTASTool
 	{
 		public static string[] BreakpointList { get; } =
 		{
-				"Accuracy Roll",
-				"Damage Roll",
-				"Effect Roll",
-				"Crit Roll",
-				"Metronome Roll",
-				"1st Catch Roll",
-				"2nd Catch Roll",
-				// add ai things todo
-				"Wait For Text Scroll Button Press",
-				"Joypad Overworld",
+			"Accuracy Roll",
+			"Damage Roll",
+			"Effect Roll",
+			"Crit Roll",
+			"Metronome Roll",
+			"1st Catch Roll",
+			"2nd Catch Roll",
+			// add ai things todo
+			"Wait For Text Scroll Button Press",
+			"Joypad Overworld",
 		};
 
 		public RollChance AccuracyRng { get; }
@@ -193,19 +193,19 @@ namespace PokemonGBTASTool
 	{
 		public static string[] BreakpointList { get; } =
 		{
-				"Accuracy Roll",
-				"Damage Roll",
-				"Effect Roll",
-				"Crit Roll",
-				"Metronome Roll",
-				"Catch Roll",
-				"Pokerus Roll",
-				// add ai things todo
-				"Prompt Button",
-				"Wait Button",
-				"Check A Press Overworld",
-				//"Vblank Random",
-				//"Random"
+			"Accuracy Roll",
+			"Damage Roll",
+			"Effect Roll",
+			"Crit Roll",
+			"Metronome Roll",
+			"Catch Roll",
+			"Pokerus Roll",
+			// add ai things todo
+			"Prompt Button",
+			"Wait Button",
+			"Check A Press Overworld",
+			//"Vblank Random",
+			//"Random",
 		};
 
 		public RollChance AccuracyRng { get; }
