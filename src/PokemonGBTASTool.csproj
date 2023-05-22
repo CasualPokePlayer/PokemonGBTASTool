@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<LangVersion>9.0</LangVersion>
+		<LangVersion>11.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<TargetFramework>net48</TargetFramework>
-		<ApplicationIcon></ApplicationIcon>
 		<Win32Resource />
 	</PropertyGroup>
 	<ItemGroup>
@@ -16,12 +15,12 @@
 		<Reference Include="BizHawk.WinForms.Controls" HintPath="$(ProjectDir)../BizHawk/dll/BizHawk.WinForms.Controls.dll" />
 	</ItemGroup>
 	<ItemGroup>
-		<EmbeddedResource Include="res/pokered.sym.gz" />
-		<EmbeddedResource Include="res/pokeblue.sym.gz" />
-		<EmbeddedResource Include="res/pokeyellow.sym.gz" />
-		<EmbeddedResource Include="res/pokegold.sym.gz" />
-		<EmbeddedResource Include="res/pokesilver.sym.gz" />
-		<EmbeddedResource Include="res/pokecrystal.sym.gz" />
+		<EmbeddedResource Include="res/pokered.sym.zst" />
+		<EmbeddedResource Include="res/pokeblue.sym.zst" />
+		<EmbeddedResource Include="res/pokeyellow.sym.zst" />
+		<EmbeddedResource Include="res/pokegold.sym.zst" />
+		<EmbeddedResource Include="res/pokesilver.sym.zst" />
+		<EmbeddedResource Include="res/pokecrystal.sym.zst" />
 		<EmbeddedResource Include="res/icon.ico" />
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
